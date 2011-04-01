@@ -56,3 +56,11 @@ m.drag(b,a)
 модуль screenshot имеет единственную функцию get_screenshot, которая возвращает объект-картинку, содержащую скриншот монитора. применять в сочетании с поиском координат.
 
 
+<code>
+from koordinat_seacher import find_template
+from PIL import Image
+from screenshot import get_screenshot
+search_image = get_screenshot()
+template_image = Image.open("/home/mr_tron/work/settlers/template.png")
+print find_template(search_image, template_image)
+</code>
