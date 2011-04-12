@@ -64,3 +64,15 @@ search_image = get_screenshot()
 template_image = Image.open("/home/mr_tron/work/settlers/template.png")
 print find_template(search_image, template_image)
 </code>
+
+
+*******************************************
+модуль window_activate имеет внутри одноименную функцию, которая принимает заголовок окна, которое надо вывести на передний план. при незаданном параметре выводит окно с заголовком Die Siedler Online.
+использование очень простое: 
+
+import window_activate
+window_activate.window_activate() 
+
+
+	
+
