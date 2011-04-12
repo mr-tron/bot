@@ -21,14 +21,25 @@ class keycodes:
 	f4 = 70
 	f5 = 71
 	f6 = 72
-	
+	minus = 20
+	plus = 21
+	k1 = 10
+	k2 = 11
+	k3 = 12
+	k4 = 13
+	k5 = 14
+	k6 = 15
+	k7 = 16
+	k8 = 17
+	k9 = 18
+	k0 = 19
 class kc(keycodes):
 	pass
 
 class my_keyboard:
 	display = Display(':0')
 	def send(self, keycode):
-		if type(keycode) == tuple or type(keycode) = list:
+		if type(keycode) == tuple or type(keycode) == list:
 			# send with modifier
 			xtest.fake_input(self.display, X.KeyPress, keycode[0])
 			xtest.fake_input(self.display, X.KeyPress, keycode[1])

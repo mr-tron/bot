@@ -10,5 +10,5 @@ template_image = Image.open("/home/mr_tron/downloads/template.png")
 from send_key import my_keyboard, kc
 
 k = my_keyboard()
-k.send(kc.f1)
+k.send(10)
 
