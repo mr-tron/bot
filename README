@@ -74,5 +74,14 @@ import window_activate
 window_activate.window_activate() 
 
 
-	
 
+*******************************************
+модуль send_key
+работает похоже на эмуляцию мыши. создаётся объект класса my_keyboard, который имеет метод send. метод принимает коды клавиш или кортеж из двух значений для нажатий клавиши с модификатором. типа alt+f4
+в классе keycodes (и его синониме кратком kc) содержатся коды осноных клавишь. 
+<code>
+from send_key import my_keyboard, kc
+
+k = my_keyboard()
+k.send(kc.f1)
+</code>
