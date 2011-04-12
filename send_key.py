@@ -33,6 +33,10 @@ class keycodes:
 	k8 = 17
 	k9 = 18
 	k0 = 19
+	shift_l = 50
+	control_l = 37
+
+	
 class kc(keycodes):
 	pass
 
