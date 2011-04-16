@@ -8,6 +8,8 @@ import Image
 
 from libs.utils import tic, tac
 
+from slots import slots, slot_hashes
+
 # TODO:
 #CalcMenuDimensions(pos)
 
@@ -127,7 +129,52 @@ class StarMenu:
 		if self.never: self.open()
 		mouse.move(self.slots_pos[slot])
 		return self
-
+	
+	
+	# for devs
+	def get_slot_image(self, slot, savepath = ''):
+		if not self.opened: self.open()
+		center = self.slots_pos[slot]
+		radius = 5
+		area = (center[0] - radius, center[1] - radius, center[0] + radius, center[1] + radius)
+		image = screen.shot(area)
+		if (savepath): image.save(savepath)
+		return image
+		
+	# for easy detecting new or absent slot types
+	# just open desired tab in starmenu, run detect_slots()
+	# and watch debug console
+	def detect_slots(self):
+		if not self.opened: self.open()
+		client.debug('Detecting slots on opened tab...')
+		detected = {}
+		for n in range(1, 19):
+			saved = ''
+			image = menu.get_slot_image(n)
+			hash = utils.image_hash(image)
+			if hash in slot_hashes:
+				slot = slot_hashes[hash]
+			elif hash in detected:
+				slot = detected[hash]
+			else:
+				slot = {
+					'title' : 'Unknown type of slot #%02d' % n,
+					'hash'  : hash
+				}
+				saved = 'slot-%02d.png' % n
+				image.save(saved)
+				detected[hash] = slot
+			client.debug('   %02d : %s (%s)%s' % (n, slot['title'], slot['hash'], saved and (', saved to "%s"' % saved)))
+		client.debug('Found new slot types: %d' % len(detected))
+	
+	
+	def test_slot(self, slot, image):
+		if self.never: self.open()
+		center = self.slots_pos[slot]
+		radius = 5
+		pos = (center[0] - radius, center[1] - radius)
+		return screen.test(image, pos)
+		
 	
 	@property
 	def opened(self):
@@ -153,7 +200,7 @@ class StarMenu:
 			return screen.test(self.image, self.pos)
 
 	
-	def wait(self, state, message = None, timeout = None):
+	def _wait(self, state, message = None, timeout = None):
 		"""
 		Waits till menu is in the given `state` (`True` - opened, `False` - closed)
 		in a given `timeout`. Shows error-`message` if it is not.
@@ -174,7 +221,7 @@ class StarMenu:
 		Returns `True` or `False` - opened or not.
 		"""
 		message = "Не удалось открыть меню звезды или определить его положение.\nВозможно клиент не успевает реагировать на щелчки мыши. Попробуйте увеличить время ожидания в секции индивидуальных настроек." # TODO i18n
-		return self.wait(True, message, timeout)
+		return self._wait(True, message, timeout)
 
 
 	def wait_close(self, timeout = None):
@@ -183,29 +230,88 @@ class StarMenu:
 		Returns `True` or `False` - closed or not.
 		"""
 		message = "Не удалось дождаться закрытия меню звезды." # TODO i18n
-		return self.wait(False, message, timeout)
-
+		return self._wait(False, message, timeout)
+	
+	def _toggle(self, state):
+		"""
+		open(), close() helper
+		"""
+		if self.opened != state:
+			client.debug('Event: Click at Star')
+			self.star.click()
+			if (state and not self.wait_open()) or (not state and not self.wait_close()):
+				sys.exit(1)
+		return self
 
 	def open(self):
 		"""
 		Trys to open the menu - clicks the star and waits till menu is visible.
 		Returns `self` on success. **Exits the script** on falure.
 		"""
-		if not self.opened:
-			client.debug('Event: Click at Star')
-			self.star.click()
-			if not self.wait_open():
-				sys.exit(1)
-		return self
+		return self._toggle(True)
+
+
+	def close(self):
+		"""
+		Trys to close the menu - clicks the star and waits till menu is hidden.
+		Returns `self` on success. **Exits the script** on falure.
+		"""
+		return self._toggle(False)
+
+
+slots = {
+	'fishfood' : {
+		'hash' : '8D6590FB',
+		'title' : 'Fish food',
+		'type'  : 'food',
+	},
+	'boost6h' : {
+		'hash' : 'AAA378D5',
+		'title' : 'Irma\'s basket',
+		'type' : 'boost',
+	},
+}
+
+for slotname, slot in slots.iteritems(): slot['name'] = slotname
+slot_hashes = dict((slots[slotname]['hash'], slots[slotname]) for slotname in slots)
+
 
 def test(expression, error):
 	if not expression: client.error(error); raise AssertionError
 
+
+print slots
+print slot_hashes
+
+"""
+import time, itertools, zlib
+center = (844, 641)
+radius = 2
+area = (center[0] - radius, center[1] - radius, center[0] + radius, center[1] + radius)
+image = screen.shot(area)
+print '>>>', zlib.adler32(buffer(bytearray(list(itertools.chain.from_iterable(image.getdata()))))) & 0xffffffff
+print '>>>', zlib.adler32(buffer(bytearray(list(itertools.chain.from_iterable(image.getdata())))))
+"""
+
 mouse.speed = 5
 game = Game()
-game.star.menu.open_tab(4)
-for slot in range(1, 19):
-	game.star.menu.point_at_slot(slot)
+star = game.star
+menu = game.star.menu
+
+menu.open_tab(3)
+menu.detect_slots()
+
+menu.close()
+
+print menu.slots_pos[12]
+
+
+"""
+img = menu.get_slot_image(1)
+for slot in range(2, 19):
+	img2 = menu.get_slot_image(slot)
+	print menu.test_slot(slot, img2)
+"""
 
 
 # tests

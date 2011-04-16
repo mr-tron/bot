@@ -1,5 +1,5 @@
 
-import time
+import time, itertools, zlib
 
 
 simple_timing = 0
@@ -27,6 +27,10 @@ class classproperty(property):
 	def __get__(self, instance, owner):
 		return self.fget.__get__(owner, owner)()
 
+def image_hash(image):
+	# OPTIMIZE OPTIMIZE OPTIMIZE OPTIMIZE OPTIMIZE
+	# don't use on large images
+	return '%08X' % (zlib.adler32(buffer(bytearray(list(itertools.chain.from_iterable(image.getdata()))))) & 0xffffffff)
 
 def rgb(color):
 	if type(color) == int:
