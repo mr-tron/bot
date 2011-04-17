@@ -10,16 +10,49 @@ from libs.utils import tic, tac
 
 from slots import slots, slot_hashes
 
-# TODO:
-#CalcMenuDimensions(pos)
+
 
 
 class Game:
 	
 	def __init__(self):
 		
-		client.activate()
+		sleeping = 0.1
+		
+		client.debug('> Trying to activate client').activate()
+		
 		self.star = Star(self)
+		
+		# trying to recognize flash client dimensions
+		# click on client to move the focus in
+		client.debug('Event: Client focus in')
+		mouse.move(screen.center).click().sleep(sleeping)
+		
+		# here we trigger starmenu location and calculation it's dimensions
+		if self.star.menu.opened:
+			self.star.menu.close() # and close it to let us send mouse and keyboard event to the client
+			mouse.move(screen.center) # move mouse pointer away from Star
+		
+		client.debug('Event: Client goto map center')
+		key.press('k0').sleep(3*sleeping)
+		
+		before = screen.shot()
+		
+		# dragging the map for some distance
+		client.debug('Event: Client dragging the map for some distance')
+		offset = (screen.center[0] - 100, screen.center[1] - 100)
+		mouse.down().sleep(sleeping).move(offset).sleep(sleeping).up().sleep(sleeping)
+	
+		after = screen.shot()
+	
+		client.debug('> Trying to recognize flash client dimensions')
+		client.pos = utils.diffmotion(before, after, 70)
+		if None in client.pos: client.fatal('Not all of client dimensions were recognized.')
+		client.size = utils.rectsize(client.pos)
+		client.center = utils.rectcenter(client.pos)
+		client.debug('Success. Client pos: ' + str(client.pos))
+		client.debug('Success. Client size: ' + str(client.size))
+		
 
 
 class Star:
@@ -29,8 +62,8 @@ class Star:
 		self.image   = Image.open('res/star-center.png') # linking image of the menu, used for searching it on the screen
 		
 		# have to locate the star center to deal with it
-		client.debug('Locating Star...')
-		self.center = screen.find(self.image, client.pos)
+		client.debug('> Trying to locate Star...')
+		self.center = screen.find(self.image)
 		if self.center == None: client.fatal('Failed to find Star center on the screen')
 		client.debug('Success. Located Star at: ' + str(self.center))
 		
@@ -57,7 +90,7 @@ class StarMenu:
 		self.slot_size = (56, 70)
 	
 	
-	def calc(self):
+	def gauge(self):
 	
 		# Положение меню звезды
 		menupos = (self.pos[0] - 191, self.pos[1] + 28)
@@ -185,14 +218,14 @@ class StarMenu:
 			# for the first time the menu is opened we don't know it's position
 			# therefore we have to find it in the client area using it's known linking image
 			client.debug('Locating Star menu...')
-			self.pos = screen.find(self.image, client.pos)
+			self.pos = screen.find(self.image)
 			if self.pos == None:       # if failed to find
 				client.debug('Star menu not found')
 				return False           # consider menu is closed
 			else:                      # if found
 				client.debug('Success. Located Star menu: ' + str(self.pos))
 				self.never = False     # not a virgin any more
-				self.calc()            # calculate menu dimensions on the basis of found point
+				self.gauge()            # calculate menu dimensions on the basis of found point
 				return True            # it is definitely opened
 		else:
 			# if it has been opened earlier, then we already know
@@ -300,7 +333,6 @@ menu = game.star.menu
 
 menu.open_tab(3)
 menu.detect_slots()
-
 menu.close()
 
 print menu.slots_pos[12]

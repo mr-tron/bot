@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 
 import time, itertools, zlib
 
@@ -41,4 +42,81 @@ def rgb(color):
 def color(r, g = None, b = None):
 	if type(r) == list or type(r) == tuple: r, g, b = r
 	return (r << 16) + (g << 8) + b;
+
+
+# алгоритм "в лоб" для определения размеров клиента по изменившимся пикселям.
+# тупой перебор. занимает 2 сек на моём компе. ниже оптимизированная версия.
+# т.к. код ещё не устоялся - оставил. может кому надо будет.
+def diffmotion1(image1, image2, R):
+
+	w, h = image1.size
+	image1, image2 = image1.load(), image2.load()
+	yy, xx = [0] * h, [0] * w
+
+	for y in range(h):
+		for x in range(w):
+			val = int(image1[x, y] == image2[x, y])
+			xx[x] += val
+			yy[y] += val
+
+	yy = [100 * y / w for y in yy]
+	xx = [100 * x / h for x in xx]
+
+	#print 'Y:', '\n', ' '.join(map(str, yy))
+	#print 'X:', '\n', ' '.join(map(str, xx))
+
+	def dim(arr, init, inc, R):
+		l = len(arr)
+		var = init - inc
+		while 0 <= (var + inc) < l:
+			if arr[var + inc] > R: var += inc
+			else: return var;
+		return None
+
+	l = dim(xx, 0, 1, R)
+	r = dim(xx, w - 1, -1, R)
+	t = dim(yy, 0, 1, R)
+	b = dim(yy, h - 1, -1, R)
+
+	return (l, t, r, b + 1)
+
+# оптимизированная версия.
+# в 10 раз быстрее чем тупой перебор.
+# R = 0..100 (%) - смысл: как только алгоритм найдёт строку/колонку, в которой < R процентов неизменившихся пикселей - это будет граница браузур-клиент.
+# before, after - тип Image, скриншоты до и после.
+# сделал механизм "смарт"-подстройки параметра R в случае, если не удаётся определить какой-либо размер. Но по-моему херня получилась. Надо ещё тут подумать...
+def diffmotion(before, after, R):
+
+	def is_solid(dir, dim, range, lim):
+		acc = 0
+		for var in range:
+			x, y = (var, dim) if dir else (dim, var)
+			acc += int(before[x, y] == after[x, y])
+			if acc >= lim: return True
+		return False
+
+	def scan(dir, step, dim, min, max, range, lim):
+		while min <= dim < max:
+			if is_solid(dir, dim, range, lim): dim += step
+			else: return dim
+		return None
+
+	def smartscan(dir, step, init, min, max, rmin, rmax):
+		lim = (rmax - rmin + 1) * R / 100
+		while lim > 0:
+			dim = scan(dir, step, init, min, max, range(rmin, rmax + 1), lim)
+			if dim != None: return dim
+			else: lim = lim * 9 / 10
+		return dim
+
+	W, H = before.size
+	before, after = before.load(), after.load()
+
+	#   smartscan(dir, step, init, min, max, rmin, rmax):
+	t = smartscan(  1,    1,    0,   0,   H,    0,  W-1)
+	b = smartscan(  1,   -1,  H-1, t+1,   H,    0,  W-1)
+	l = smartscan(  0,    1,    0,   0,   W,    t,    b)
+	r = smartscan(  0,   -1,  W-1, l+1,   W,    t,    b)
+
+	return (l - 1, t - 1, r + 1, b + 1 + 1)
 
