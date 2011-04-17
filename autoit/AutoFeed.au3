@@ -1,0 +1,1016 @@
+
+; -------------------------------------------------------------------------------------------
+;                  СКРИПТ АВТОКОРМЁЖКИ ДЛЯ DIE SIEDLERS ONLINE 0.2.6 (2011.02.23)
+; -------------------------------------------------------------------------------------------
+;
+;                         ИГРА:  http://www.diesiedleronline.de
+;                       СКРИПТ:  http://settlers.onbb.ru/viewtopic.php?id=104
+; 
+; Проверено на последних версиях браузеров firefox, opera, chrome, safari.
+; Internet Explorer не тестировался. Скорее всего - не работает. Такой он.
+;
+; Чтобы скрипт находил нужные слоты с ресурсами, они должны быть где-то сверху. Скрипт не скроллит меню!
+;
+; TIPS:
+;  - Если что-то пошло не так и надо прервать выполнение скрипта - Escape.
+;  - Можно скомпилировать скрипт в *.exe файл.
+; 
+; 
+; -------------------------------------------------------------------------------------------
+;                                        КАК ЗАПУСТИТЬ
+; -------------------------------------------------------------------------------------------
+; 
+;   1. Скачать дистрибутив скриптовой оболочки AutoIt:
+;      http://www.autoitscript.com/site/autoit/downloads/
+;   2. Установить.
+;   3. Открыть файл "Задание.au3", прочитать, написать своё задание.
+;   4. Можно запускать скрипт "Задание.au3" двойным кликом.
+;
+;
+; -------------------------------------------------------------------------------------------
+;                                      ИСТОРИЯ ВЕРСИЙ
+; -------------------------------------------------------------------------------------------
+;
+; 0.2.6 (2011.02.23)
+;   - Добвлен хэш угля
+;   - Чтобы получить хэш слота, которого ещё нет - просто пишем в файле заданий GetAllSlotHashes()
+;   - Прервать выполнение скрипта - Escape
+;   - Анти-бан меры:
+;     - Скорость перемещения может меняться случайным образом при помощи настроек $mouseMoveSpeedMin и $mouseMoveSpeedMax
+;     - Позиция кликов по элементам управления меняется случайным образом
+; 0.2.5.1 (2011.02.19)
+;   - багфиксы
+;   - слегка изменился синтаксис заданий - количество кормёжек - "?" - спрашивать юзера, "*" - бесконечно
+; 0.2.5 (2011.02.19) - unstable alpha
+;   - Введена опция $verbose - показывать или нет сообщения в конце заданий (мешают, если несколько заданий)
+;   - Настройки можно задавать отдельно для каждого файла заданий
+;   - При выборе слота дожидается закрытия меню - если по какой-то причине слот не выбрался - снова его выбирает.
+;     Теперь можно поставить $mouseMoveSpeed = 1 и полюбоваться ))) вполне стабильно работает даже на такой скорости.
+;   - Абстрагирована функция кормёжки. Need refactor. Later.
+;   - Новый вид задания Settle() - вселять поселенцев.
+;   - Новый вид задания Drop() - скидывать дроп в ратушу. Пока работают только Fir wood planks, Stones,
+;     Hard wood planks, Marble, Gold, Hard wood planks, Tools. Это то, что у меня было. Контрибутим хэши других ресурсов!
+;   - Добавлен браузер Firefox 4 (feedback @yagoda)
+; 0.2.4 (2011.02.18) - unstable alpha
+;   - Добавлена возможность в Feed() указывать несколько лунок, которые скрипт будет
+;     кормить поочереди
+; 0.2.3.1 (2011.02.18) - unstable alpha
+;   - Убран лишний WinWaitActive при старте
+; 0.2.3 (2011.02.18) - unstable alpha
+;   - Пофиксено позиционирование в опере.
+;   - Скрипт разделён на две части - библиотека и файл(ы) заданий.
+;     Удобно создавать несколько видов разных заданий.
+;   - Publish!
+; 0.2.2 (2011.02.17) - unstable alpha
+;   - Заданы координаты всех лунок с рыбой и мясом
+;   - Реализована кормёжка дичи.
+;   - Нарисована карта лунок (map.jpg).
+;   - Написана утилита PositionCapture.au3, с помощью которой можно определять
+;     "универсальные" координаты объектов.
+;   - Вселение поселенцев в ратушу - Feed(0). Пока так.
+;   - Вычислены хэши слотов некоторых наиболее распространённых объектов (на будущее).
+;   - Убран слип для открытия меню - вместо этого скрипт ждёт столько сколько нужно.
+;     В результате, с одной стороры, если клиент тормозит - скрипт всё равно дожидается
+;     когда меню откроется, с другой, - если клиент шустро реагирует, то и скрипт
+;     зря не спит. Есть таймаут. Настраивается.
+;   - Определение какая из вкладок активна (лишний раз не открывает уже активную вкладку).
+;   - Убран слип для перемещения по вкладкам. Слипов нет!
+; 0.2.1 (2011.02.15) - unstable alpha
+;   - Однозначно определяет позицию звезды и меню по их битмапам - если что-то пошло не так,
+;     то ругается, а не таскает мышь по странице с википедией (её пользователь смотрел)
+;     100 раз (так пользователь заказал) думая, что там лунки
+;   - Состояние слотов определяется по их хэшам (тобиш быстро)
+;   - Работает как с открытой френдлентой, так и с закрытой
+;   - Отлажена система позиционирования на лунках - работает в firefox, chrome, safari,
+;     в опере не работает, в ie не проверялось. later.
+; 0.2.0 (2011.02.14) - unstable alpha
+;   Автор - peepcode. Основная цель - минимизировать настройки скрипта
+;   - Автоматически определяются браузер с игрой и размеры клиента
+;   - Попытка унифицировать положения элементов управления
+;   - Попытка унифицировать положения объектов игры (лунки)
+;   - Убраны ненужные sleep'ы. Предполагается, что пока курсор перемещается клиент успевает
+;     отрисовать то, что ему надо
+;   - Более умная система выбора слотов кормёжки - скрипт сам ищет доступные слоты с нужными
+;     ресурсомами
+;   - Мгновенная активация окна браузера (без клика по контролу)
+;   - Можно менять скорость перемещений указателя курсора
+;   - Пока умеет только рыбу кормить
+; 0.1.0 (не известно) - "под напильник"
+;   Первоначальная версия, основные идеи скрипта. Автор - doktorgradus
+;
+;
+; -------------------------------------------------------------------------------------------
+;                                                 TODO
+; -------------------------------------------------------------------------------------------
+;
+;  - Проблема с несколькими инстансами флэш-плагина ???
+;
+;
+;
+; -------------------------------------------------------------------------------------------
+
+
+#Include <Array.au3>
+#Include <Color.au3>
+#Include <WinAPI.au3>
+#Include <Misc.au3>
+
+; for TextDisplay
+#include <GUIEdit.au3>
+#include <EditConstants.au3>
+#include <GUIConstantsEx.au3>
+
+
+; -------------------------------------------------------------------------------------------
+; Индивидуальные настройки
+; -------------------------------------------------------------------------------------------
+
+; Скорость перемещения указателя курсора: от 0 до 100: 0 - мгновенно, 1 - очень быстро, 100 - очень медленно.
+; Не рекомендуется ставить значения меньше 3, т.к. клиент игры не будет успевать реагировать. На слабых машинах возможно стоит увеличить значение.
+If Not IsDeclared("mouseMoveSpeedMin") Then Global Const $mouseMoveSpeedMin = 2
+If Not IsDeclared("mouseMoveSpeedMax") Then Global Const $mouseMoveSpeedMax = 5
+
+; Количество кормёжек по-умолчанию, которое будет подставлено в поле ввода при запросе у пользователя
+If Not IsDeclared("defaultFeedCount") Then Global Const $defaultFeedCount = 100
+
+; Максимальное время ожидания открытия менюшек
+If Not IsDeclared("menuTimeout") Then Global Const $menuTimeout = 5000
+
+; Сообщать об окончании очереди, недоступности слотов и т.д.
+If Not IsDeclared("verbose") Then Global Const $verbose = True
+
+
+
+; -------------------------------------------------------------------------------------------
+; Константы. Предполагается, что менять здесь ничего не потребуется, но пока хз что получится
+; -------------------------------------------------------------------------------------------
+
+
+; --- Browsers ------------------------------------------------------------------------------
+; Параметры поиска клиента игры для всех доступных браузеров в формате
+; [ "Наименование браузера", "Класс окна браузера", "Класс окна Flash-плагина с игрой" ]
+
+Global Const $browsers[6][3] = [ _
+	["Chrome",             "Chrome_WidgetWin_0",                     "NativeWindowClass"], _
+	["Opera",              "OperaWindowClass",                       "aPluginWinClass"], _
+	["Firefox",            "MozillaUIWindowClass",                   "GeckoPluginWindow"], _
+	["Firefox4",           "MozillaWindowClass",                     "GeckoPluginWindow"], _
+	["Safari",             "{1C03B488-D53B-4a81-97F8-754559640193}", "WebPluginView"], _
+	["Internet Explorer",  "IEFrame",                                "MacromediaFlashPlayerActiveX"] _
+]
+
+; Заголовок искомого окна браузера с игрой
+Global Const $browserTitle = "Die Siedler Online"
+
+
+; --- Bitmaps -------------------------------------------------------------------------------
+; Битмапы элементов управления игры, суть массивы цветов ячеек.
+; Помогают точно определить положения элементов управления.
+
+; Центр звезды
+Global Const $starBitmap[4][4] = [[0xC9C2BC,0xCEC7C3,0xC3BCB6,0xB5AEA9],[0xCFC8C3,0xC4BDB9,0xB6AFAC,0xB3ACA6],[0xC7C0BD,0xB9B2AC,0xB1AAA6,0xB6AFAC],[0xBCB5B0,0xB3ACA7,0xB6AFAA,0xB4ADA8]]
+; Маленькая звезда над меню звезды
+Global Const $menuBitmap[4][4] = [[0xADA6A2,0xA29B97,0x9F9895,0x9C958F],[0xA7A09A,0xA29B96,0x9A938F,0x9C9590],[0xA59F9D,0x9C928A,0x98908B,0x98908D],[0x898691,0x838E9C,0x949497,0x938D8A]]
+
+
+; --- Hashes --------------------------------------------------------------------------------
+; Хэши различных объектов игры (см. PixelChecksum).
+; Служат для того, чтобы быстро определять находится ли в определённой точке экрана то, что мы ищем или нет
+; Например, определяем открыта ли звезда, является ли данный баф рыбой или нет.
+
+; Хэши слотов с ресурсами в меню звезды
+Global Const $slotHashes[20][2] = [ _
+	[1969295491, 'Empty'], _              ; 00
+	[2416256132, 'Fishfood'], _           ; 01
+	[1455886620, 'Wildfood'], _           ; 02 "Musk deer fragrance"
+	[1688480899, '+ Settlers'], _         ; 03
+	[901125509,  '+ Fir wood planks'], _  ; 04
+	[2273910955, '+ Stones'], _           ; 05
+	[1936465211, '+ Hard wood planks'], _ ; 06
+	[2954964255, '+ Marble'], _           ; 07
+	[1548164947, '+ Gold'], _             ; 08
+	[1936465211, '+ Hard wood planks'], _ ; 09
+	[2098664818, '+ Tools'], _            ; 10
+	[2777357247, '+ Coal'], _             ; 11
+	[724247114,  '30 minutes buff'], _    ; 12 "Fish plate"
+	[193206745,  '2 hours buff'], _       ; 13 "Solid Sandwich"
+	[3880594669, '6 hours buff'], _       ; 14 "Aunt Irma's Gift Basket"
+	[3032490639, '12 hours'], _           ; 16 корзинок с экзотическими фруктами (12h)
+	[3032490639, 'Easter egg'] _          ; 15 пасхальных яиц
+]
+
+
+; Хэш опорной звёздочки над меню звезды. Вычисляется по ходу
+Global $menuHash, $menuHashPos
+
+
+; --- Deposites -----------------------------------------------------------------------------
+; Массив описаний месторождений в следующем формате:
+;   [0] вид месторождения, тут пока хранится то чего данная лунка может в себя принимать - индекс из $slotHashes
+;   [1] x-координата*
+;   [2] y-координата*
+;   [3] сектор, в котором расположено месторождение
+; *Координаты задаются относитьльно карты, спозиционированной в центре сектора месторождения (по нажатию соответствующей клавиши) и с минимальным масштабом.
+; Предполагается, что таким образом координаты лунок будут у всех одинаковые и каждому пользователю не нужно будет высчитывать их значения для себя.
+; Ему будет достаточно задать некий "унифицированный" номер месторождения (суть индекс в массиве $deposits).
+; Будет ли это всё работать - ещё надо проверить...
+
+Global $deposits[43][4] = [ _
+	[ 3,   42,  -79, 7 ], _ ; townhall
+	[ 1,  152,   84, 7 ], _ ; fish 1
+	[ 1,  104,   84, 7 ], _ ; fish 2
+	[ 1,  -37,   84, 7 ], _ ; fish 3
+	[ 1, -164,   92, 7 ], _ ; fish 4
+	[ 1,  -60,   -2, 7 ], _ ; fish 5
+	[ 1, -199,  -88, 7 ], _ ; fish 6
+	[ 1, -153,   70, 1 ], _ ; fish 7
+	[ 1, -119,   35, 1 ], _ ; fish 8
+	[ 1, -246,   -1, 1 ], _ ; fish 9
+	[ 1, -246,  -17, 1 ], _ ; fish 10
+	[ 1,  -59,  -16, 1 ], _ ; fish 11
+	[ 1,   81,  -74, 1 ], _ ; fish 12
+	[ 1,  244, -102, 1 ], _ ; fish 13
+	[ 1,  269, -102, 1 ], _ ; fish 14
+	[ 1,  151,  -31, 9 ], _ ; fish 15
+	[ 1,  127,  -31, 9 ], _ ; fish 16
+	[ 1,   58,  -86, 9 ], _ ; fish 17
+	[ 1,   11,  -59, 9 ], _ ; fish 18
+	[ 1,  -59,   85, 9 ], _ ; fish 19
+	[ 1, -130,   55, 9 ], _ ; fish 20
+	[ 1, -202,   85, 5 ], _ ; fish 21
+	[ 1, -118,    5, 5 ], _ ; fish 22
+	[ 1, -178,  -61, 5 ], _ ; fish 23
+	[ 1, -270, -117, 5 ], _ ; fish 24
+	[ 1,  105,  201, 1 ], _ ; fish 25
+	[ 2, -165,    7, 8 ], _ ; wild 26
+	[ 2, -166,  -96, 8 ], _ ; wild 27
+	[ 2, -212,  -24, 1 ], _ ; wild 28
+	[ 2,  105,   -2, 1 ], _ ; wild 29
+	[ 2, -107, -146, 2 ], _ ; wild 30
+	[ 2,  162,  -67, 2 ], _ ; wild 31
+	[ 2,  -60,   -2, 3 ], _ ; wild 32
+	[ 2,  -38,   12, 3 ], _ ; wild 33
+	[ 2,   22,  150, 3 ], _ ; wild 34
+	[ 2,   33,  170, 3 ], _ ; wild 35
+	[ 2, -200,   -1, 6 ], _ ; wild 36
+	[ 2,   34,   57, 6 ], _ ; wild 37
+	[ 2,  186, -139, 9 ], _ ; wild 38
+	[ 2,  -60,  -59, 9 ], _ ; wild 39
+	[ 2,   91,   48, 8 ], _ ; wild 40
+	[ 2,   92,  -81, 8 ], _ ; wild 41
+	[ 2,  -71,  -80, 5 ]  _ ; wild 42
+]
+
+
+
+; -------------------------------------------------------------------------------------------
+; Служебные переменные
+; -------------------------------------------------------------------------------------------
+
+; Параметры браузера, окон
+Global $clientWindow  = 0   ; дескриптор окна клиента
+Global $browserWindow = 0   ; дескриптор окна браузера
+Global $browser[3]          ; данные браузера (содержит строчку из $browsers с текущим браузером)
+
+; Переменные геометрии элементов управления игры. Вычисляются по ходу дела
+Global $clientPos, $starPos, $menuPos[2], $slotsPos[19][2], $tabsPos[6][2], $tabsBasePos[6][2]
+
+
+; Известные константы геометрии
+Global Const $slotSize[2] = [56, 70]
+Global Const $menuSize[2] = [384, 251]
+
+; Флаги
+Global $starNeverOpen = True  ; Звезда ещё ни разу не открывалась?
+Global $currentSector = 0     ; Текущий сектор на карте
+
+
+
+; -------------------------------------------------------------------------------------------
+; Тело программы
+; -------------------------------------------------------------------------------------------
+
+HotKeySet("{ESCAPE}", "Terminate")
+ActivateClient()  ; Да. Такое тело...
+
+
+
+; -------------------------------------------------------------------------------------------
+;  ОБЩЕЕ
+; -------------------------------------------------------------------------------------------
+
+; Активирует рабочее окно
+Func ActivateClient()
+	
+	Local $i, $hwnd
+	
+	; Ищем окно клиента игры
+	For $i = 0 To UBound($browsers) - 1          ; пробуем каждый доступный браузер
+		$clientWindow = ControlGetHandle("[TITLE:" & $browserTitle & "; CLASS:" & $browsers[$i][1] & "]", "", "[CLASS:" & $browsers[$i][2] & "]")
+		If Not $clientWindow = 0 Then            ; если какое-то окошко нашлось
+			$browser = _ArrayRow($browsers, $i)  ; запоминаем какой у нас браузер
+			ExitLoop                             ; считаем, что нашли, прекращаем поиск
+		EndIf
+	Next
+	
+	; Если клиент не найден - делать нечего, выходим
+	If $clientWindow = 0 Then
+		Err("Не удалось найти окно клиента игры")
+		Exit
+	EndIf
+	
+	; Ищем окно браузера - получаем всех родителей клиента, забираем самого старшего с соответствующим классом браузера
+	$hwnd = $clientWindow
+	While Not $hwnd = 0
+		$hwnd = _WinAPI_GetParent($hwnd)
+		If (_WinAPI_GetClassName($hwnd) = $browser[1]) Then
+			$browserWindow = $hwnd
+		EndIf
+	WEnd
+
+	If Not $browserWindow = 0 Then
+		If BitAnd(WinGetState($browserWindow, ""), 16) Then  ; если браузер минимизирован
+			WinSetState($browserWindow, "", @SW_RESTORE)     ; восстанавливаем
+		EndIf
+		WinActivate($browserWindow, "")                      ; активируем окно браузера на всякий случай
+	EndIf
+
+	; Активируем окно клиента
+	If WinActivate($clientWindow, "") = 0 Then
+		Err("Не удалось активировать требуемое окно браузера")
+		Exit
+	EndIf
+	
+	; Получаем размеры клиента в формате [x, y, width, height]
+	$clientPos = WinGetPos($clientWindow, "")
+	If $clientPos = 0 Then
+		Err("Не удалось получить размеры окна браузера")
+		Exit
+	EndIf
+	
+	; Ищем положение центра звезды по битмапу
+	$starPos = BitmapSearch($starBitmap, $clientPos[0], $clientPos[1] + $clientPos[3] - 200, $clientPos[0] + $clientPos[2], $clientPos[1] + $clientPos[3])
+	If $starPos = 0 Then
+		Err("Не удалось получить положение звезды." & @CRLF & "Убедитесь, что вкладка браузера с игрой активна и в игре не открыты модальные окна (например, окно сообщений)")
+		Exit
+	EndIf
+	
+	; Опера пренепременно хочет, чтобы в неё таки тыкнули
+	If ($browser[0] = "Opera") Then
+		MoveMouse($clientPos[0] + Round($clientPos[2] / 2), $clientPos[1] + Round($clientPos[3] / 2))  ; центр клиента
+		MouseClick('left')
+	EndIf
+
+	MouseWheel("down", 10)  ; минимальный масштаб карты
+	
+EndFunc
+
+; Спрашивает у пользователя количество кормёжек
+Func AskFeedCount($title = 'AutoFeed')
+	Local $answer
+	While 1
+		$answer = InputBox($title, 'Количество кормёжек (* - бесконечно)', $defaultFeedCount)
+		If @error = 0 Then
+			If StringIsInt($answer) And Int($answer) > 0 Then
+				WinActivate($clientWindow, "")
+				Return Int($answer)
+			ElseIf $answer == '*' Then
+				WinActivate($clientWindow, "")
+				Return $answer
+			Else
+				Err("Необходимо ввести правильное целое число")
+			EndIf
+		ElseIf @error = 1 Then
+			Exit
+		Else
+			Err("Неизвестная ошибка в AskFeedCount()")
+			Exit
+		EndIf
+	WEnd
+EndFunc
+
+; Перемещает курсор в положение на экране, где клиент реагирует на нажатия клавиш
+; Если курсор мыши находится над окошками (окно здания, окно менюшек), то клиент игнорирует скроллинг и нажатия клавиш перехода к секторам.
+; Есть под курсором менюшка, или нет - мы точно не знаем, поэтому надо увести мышь куда-то, где как-будто точно менюшки нет.
+; Пока ничего лучше, чем отвести мыша чуть влево от менюшки звезды не придумал...
+Func MouseMoveToScrollSafe()
+	If $starNeverOpen Then OpenStar()
+	MoveMouse($menuPos[0] - 10, $menuPos[1])
+EndFunc
+
+; Перемещает карту в нужный сектор
+Func GoToSector($sector)
+	If $currentSector <> $sector Then
+		MouseMoveToScrollSafe()
+		Send($sector)              ; нажимаем кнопку с номером сектора
+		$currentSector = $sector   ; запомнили, чтобы 10 раз не тыркаться
+	EndIf
+EndFunc
+
+; Пересчитывает размеры меню звезды
+Func CalcMenuDimensions($pos)
+	
+	; $pos - опорная точка в центре маленькой звезды над меню - относительно неё и считаем
+	
+	; Положение меню звезды
+	$menuPos[0] = $pos[0] - 191
+	$menuPos[1] = $pos[1] + 28
+	
+	; Положение первого слота
+	Local $firstSlotPos[2] = [ $pos[0] - 184, $pos[1] + 39 ]
+	
+	; Положение центров слотов меню
+	For $row = 1 To 3
+		For $cell = 1 To 6
+			$slot = $cell + 6 * ($row - 1)  ; номер слота
+			; Положение центра слота $slot (0.5 - смещение к центру)
+			$slotsPos[$slot][0] = $firstSlotPos[0] + $slotSize[0] * ($cell - 0.5)
+			$slotsPos[$slot][1] = $firstSlotPos[1] + $slotSize[1] * ($row - 0.5)
+		Next
+	Next
+	
+	; Положения вкладок меню
+	For $tab = 1 to 5
+		; Положение центра вкладки $tab - место для клика (0.5 - смещение к центру)
+		$tabsPos[$tab][0] = $menuPos[0] + Round(($tab - 0.5) * ($menuSize[0] / 5))
+		$tabsPos[$tab][1] = $menuPos[1] + $menuSize[1] - 15
+		; Положение точки на левом краю вкладки $tab - место для забора цвета для определения её активности
+		$tabsBasePos[$tab][0] = $menuPos[0] + Round(($tab - 1) * ($menuSize[0] / 5)) + 5
+		$tabsBasePos[$tab][1] = $tabsPos[$tab][1]
+	Next
+	
+EndFunc
+
+Func Rand($a, $b)
+	If $a == $b Then
+		Return $a
+	Else
+		Return Random($a, $b, 1)
+	EndIf
+EndFunc
+
+Func MoveMouse($x, $y, $dx = 0, $dy = 0)
+	MouseMove($x + Rand(-$dx, $dx), $y + Rand(-$dy, $dy), Rand($mouseMoveSpeedMin, $mouseMoveSpeedMax))
+EndFunc
+
+Func Terminate()
+    Exit
+EndFunc
+
+; -------------------------------------------------------------------------------------------
+;  ЗВЕЗДА
+; -------------------------------------------------------------------------------------------
+
+; Перемещает указатель курсора в центр звезды
+Func MouseMoveToStar()
+	MoveMouse($starPos[0], $starPos[1], 8, 8)
+EndFunc
+
+; Определяет открыта ли звезда
+Func IsStarOpened()
+	
+	If $starNeverOpen Then
+		; Если меню ни разу не открывалось, то ищем его по битмапу
+		$pos = BitmapSearch($menuBitmap, $clientPos[0], $clientPos[1], $clientPos[0] + $clientPos[2], $clientPos[1] + $clientPos[3])
+		If $pos = 0 Then                                  ; не нашли
+			Return False                                  ; значит меню закрыто
+		Else                                              ; если нашли на экране битмап, то
+			$menuHashPos = $pos                           ; запомним позицию найденного битмапа
+			$menuHash = GetHashAtPoint($pos[0], $pos[1])  ; найдём и запомним хэш в этой точке
+			CalcMenuDimensions($pos)                      ; определим размеры меню по найденной позиции битмапа
+			$starNeverOpen = False                        ; снимем флаг девственности
+			Return True                                   ; точняк меню открыто
+		EndIf
+	Else
+		; Если меню уже открывалось, то факт его открытости устанавливаем с помощью ранее определённого хэша
+		Return IsHashAtPoint($menuHashPos[0], $menuHashPos[1], $menuHash)
+	EndIf
+	
+EndFunc
+
+; Ждёт открытия меню звезды в отведённое время $timeout. Возврвщает открылось окно или нет
+Func WaitStarOpen($timeout = $menuTimeout, $verbose = True)
+	
+	Local $tic = TimerInit()                   ; включаем таймер
+	While Not IsStarOpened()                   ; всё время проверяем - не открылось ли
+		If (TimerDiff($tic) >= $timeout) Then  ; если ждём больше чем $timeout, то отрицательно выходим
+			If $verbose Then Err("Не удалось открыть меню звезды или определить его положение." & @CRLF & "Возможно клиент не успевает реагировать на щелчки мыши. Попробуйте увеличить время ожидания в секции индивидуальных настроек.")
+			Return False
+		EndIf
+	WEnd
+	Return True
+	
+EndFunc
+
+; Ждёт закрытия меню звезды в отведённое время $timeout. Возврвщает закрылось окно или нет
+Func WaitStarClose($timeout = $menuTimeout, $verbose = True)
+	
+	Local $tic = TimerInit()                   ; включаем таймер
+	While IsStarOpened()                       ; всё время проверяем - не открылось ли
+		If (TimerDiff($tic) >= $timeout) Then  ; если ждём больше чем $timeout, то отрицательно выходим
+			If $verbose Then Err("Не удалось дождаться закрытия меню звезды.")
+			Return False
+		EndIf
+	WEnd
+	Return True
+	
+EndFunc
+
+; Открывает звезду
+Func OpenStar()
+	
+	If IsStarOpened() Then Return
+	MouseMoveToStar()
+	MouseClick("left")
+	If Not WaitStarOpen() Then Exit
+	
+EndFunc
+
+; Перемещает указатель курсора в вкладки $tab меню звезды
+Func MouseMoveToStarTab($tab)
+	If $starNeverOpen Then OpenStar()
+	MoveMouse($tabsPos[$tab][0], $tabsPos[$tab][1], 15, 3)
+EndFunc
+
+; Определяет активна ли вкладка меню звезды
+Func IsStarTabActive($tab)
+	; неактивные вкладки : rgb(89,71,45)   = 0x59472D
+	; активные вкладки   : rgb(131,102,65) = 0x836641
+	If $starNeverOpen Then OpenStar()
+	Return ColorMatches(PixelGetColor($tabsBasePos[$tab][0], $tabsBasePos[$tab][1]), 0x836641, 10)
+EndFunc
+
+; Активирует заданную вкладку в звезде
+Func ActivateStarTab($tab)
+	
+	OpenStar()
+	If IsStarTabActive($tab) Then Return
+	
+	Local $tic, $tac
+	
+	MouseMoveToStarTab($tab)
+	MouseClick("left")
+
+	$tic = TimerInit()
+	While Not IsStarTabActive($tab)     ; ждём пока не откроется вкладка
+		$tac = TimerDiff($tic)          ; сколько уже ждём?
+		If ($tac >= $menuTimeout) Then  ; устали ждать
+			Err("Не удалось активировать вкладку меню." & @CRLF & "Возможно клиент не успевает реагировать на щелчки мыши. Попробуйте увеличить время ожидания в секции индивидуальных настроек.")
+			Exit
+		EndIf
+	WEnd
+
+EndFunc
+
+
+
+; -------------------------------------------------------------------------------------------
+;  СЛОТЫ
+; -------------------------------------------------------------------------------------------
+; Слоты нумеруются слева-направо сверху-вниз - от 0 до 18
+
+; Перемещает указатель мыши на центр слота $slot
+Func MouseMoveToSlot($slot)
+	If $starNeverOpen Then OpenStar()
+	MoveMouse($slotsPos[$slot][0], $slotsPos[$slot][1], 18, 25)
+EndFunc
+
+; Определяет соответствует ли слот $slot типу $type (по хэшу)
+Func IsSlotOfType($slot, ByRef $type)
+	Local $slotHash = GetHashAtPoint($slotsPos[$slot][0], $slotsPos[$slot][1])
+	Local $slotId = _ArraySearch($slotHashes, $slotHash)
+	If $slotId < 0 Then Return False
+	If IsNumber($type) Then Return $slotId = $type
+	If IsArray($type) Then Return _ArraySearch($type, $slotId) >= 0
+	Return False
+EndFunc
+
+; Ищет во всём меню первый слот с типом $type, начиная со слота $start
+Func FindSlotOfType(ByRef $type)
+	OpenStar()
+	For $slot = 1 To 18
+		If IsSlotOfType($slot, $type) Then Return $slot
+	Next
+	Return 0
+EndFunc
+
+Func SelectSlot(ByRef $slotTypes)
+	
+	Local $slot
+	; Ищем первый подходящий ресурс в звезде.
+	; Загвоздка в том, что найденный ресурс может сдвинуться в списке пока мы к нему мышкой ползли...
+	While 1
+		$slot = FindSlotOfType($slotTypes)       ; ищем слот
+		If $slot = 0 Then Return False            ; если не нашли - кормить нечем, выходим
+		MouseMoveToSlot($slot)                    ; иначе, перемешаем курсор на найденный слот ресурса
+		If IsSlotOfType($slot, $slotTypes) Then  ; если пока курсор двигался этот слот не пропал, то
+			MouseClick("left")                          ; быстренько кликаем по слоту с ресурсом
+			If WaitStarClose(500, False) Then           ; и ждём закрытия окна звезды - открылось - продолжаем, иначе - снова идём в начало цикла
+				ExitLoop                                ; эта проверка нужна потому что иногда случается, что клик по слоту происходит в тот момент,
+			EndIf                                       ; когда клиент обновляет менюшку и клик не защитывает, следовательно слот не выбирается,
+														; меню не закрывается, значит нужно снова всё повторить.
+		EndIf
+	WEnd
+	
+	Return True
+	
+EndFunc
+
+
+
+; -------------------------------------------------------------------------------------------
+; ЗАДАНИЯ
+; -------------------------------------------------------------------------------------------
+
+; Перемещает курсор на заданную лунку с месторождением
+Func MouseMoveToTarget($target)
+	GoToSector($deposits[$target][3])  ; перемещаем карту в сектор с лункой
+	Local $sectorCenter[2] = [$clientPos[0] + Round($clientPos[2]/2), $clientPos[1] + _Iif($clientPos[3] < 800, 400, Round($clientPos[3]/2))] ; хитрая позиция центра сектора
+	MoveMouse($sectorCenter[0] + $deposits[$target][1], $sectorCenter[1] + $deposits[$target][2])  ; идём по координатам относительно центра сектора
+EndFunc
+
+Func GetSlotTypeForTaskTarget($taskName, $target)
+	
+	Switch $taskName
+		Case "Feed"
+			Return $deposits[$target][0]
+		Case "Settle"
+			Return 3
+		Case "Buff"
+			Local $suxx[3] = [12, 13, 14]
+			Return $suxx
+		Case "Drop"
+			Local $suxx[8] = [4, 5, 6, 7, 8, 9, 10, 11]
+			Return $suxx
+		Case Else
+			Return False
+	EndSwitch
+	
+EndFunc
+
+; Пытается кормить лунку $deposit путём поска нужных слотов в меню, начиная со слота $startSlot
+Func PerformFeedingTasks($taskName, $targets, $count = 0, $starTab = 4)
+	
+	If Not IsArray($targets) Then
+		$targets = ParseNumberRange($targets, 0, UBound($deposits) - 1)
+	EndIf
+	If ($targets[0] = 0) Then Return False
+	
+	If $count == '?' Then
+		$count = AskFeedCount($taskName) ; спрашиваем у пользователя
+	ElseIf $count == '-' Then ; не повторять кормёжки - каждое здание - только один раз
+		$count = $targets[0]
+	ElseIf $count == '*' Then ; беcконечно
+		$count = '*'
+	ElseIf ($count <= 0) Then         ; если количество кормёжек не задано явно
+		Return 0
+	EndIf
+	
+	Local $feeded    = 0  ; лунок накормлено (точнее, количество успешных попыток)
+	Local $targetId  = 0  ; текущая лунка
+	Local $target         ; текущая лунка
+	Local $slotType
+	
+	While ($count == '*') Or ($feeded < $count)
+		$targetId = _Iif($targetId >= $targets[0], 1, $targetId + 1)  ; перешли на следующую лунку
+		$target   = $targets[$targetId]
+		$slotType = GetSlotTypeForTaskTarget($taskName, $target)
+		
+		; пытаемся кормить текущую лунку
+		ActivateStarTab($starTab)     ; активируем вкладку ресурсов в звезде
+		If Not SelectSlot($slotType) Then
+			If $verbose Then Err('Не найдено доступных слотов с кормёжкой. Накормлено: ' & $feeded) ; сообщаем ; TODO не очень хорошо. если дальше идут ещё задания, то пока юзер по кнопке не кликнет - их выполнение будет заблокировано
+			Return $feeded                                           ; завершаем задание
+		EndIf
+		MouseMoveToTarget($target)    ; перемешаем курсор на лунку
+		MouseClick("left")            ; кликаем по лунке, тобиш кормим её
+		$feeded += 1                  ; считаем, что накормили
+	WEnd
+	
+	If $verbose Then
+		Sleep(500)  ; поспим, чтобы последняя лунка успела съесть, чтобы фокус не перешёл на msgbox
+		Msg('Очередь кормёжки закончена. Накормлено: ' & $feeded)   ; подводим итоги ; TODO см. выше
+	EndIf
+	Return $feeded
+	
+EndFunc
+
+; Выполняет серию кормёжек лунки
+;   $targets  -  номера лункок, которые требуется кормить в виде "1,5,32-33". Если указано несколько лунок, то кормить будет поочереди
+;   $count    -  общее количество кормёжек, если 0, то спросить у пользователя
+Func Feed($targets, $count = '?')
+	Local $targetsArray = ParseDepositsRange($targets)    ; парсим переданную строку, получаем массив нужных лунок
+	If $targetsArray = False Then Return False            ; ошибки в строке
+	Return PerformFeedingTasks("Feed", $targetsArray, $count)
+EndFunc
+
+Func Settle($count = '?')
+	Return PerformFeedingTasks('Settle', 0, $count)
+EndFunc
+
+Func Drop($count = '*')
+	Return PerformFeedingTasks('Drop', 0, $count)
+EndFunc
+
+Func Buff($targets)
+	Return PerformFeedingTasks('Buff', $targets, '-', 3)
+EndFunc
+
+
+Func AddTarget($name, $x, $y, $sector)
+	
+	Local $i = UBound($deposits)
+	ReDim $deposits[$i + 1][4]
+	$deposits[$i][0] = $name
+	$deposits[$i][1] = $x
+	$deposits[$i][2] = $y
+	$deposits[$i][3] = $sector
+	Return $i
+	
+EndFunc
+
+; -------------------------------------------------------------------------------------------
+; Вспомогательные функции
+; -------------------------------------------------------------------------------------------
+
+; Стандартное соотщение
+Func Msg($message)
+	MsgBox(4096, "Сообщение", $message)
+EndFunc
+
+; Стандартное соотщение об ошибке
+Func Err($message)
+	MsgBox(4096, "Ошибка", $message)
+EndFunc
+
+; Ищет на экране заданный битмап. Аналогичено PixelSearch, только ищет не отдельный пиксель, а их массив (битмап)
+Func BitmapSearch($bitmap, $left = 0, $top = 0, $right = @DesktopWidth, $bottom = @DesktopHeight, $tolerance = 0, $step = 1, $hwnd = 0)
+	
+	Local $color = $bitmap[0][0], $x = $left, $y = $top, $point
+	
+	While 1
+		$point = PixelSearch($x, $y, $right, _Iif($x = $left, $bottom, $y), $color, $tolerance, $step, $hwnd) 
+		If IsArray($point) Then
+			If _BitmapMatch($bitmap, $point[0], $point[1]) Then
+				Return $point
+			Else
+				$x = $point[0] + 1
+				$y = $point[1]
+			EndIf
+		ElseIf ($x = $left) Then
+			Return 0
+		Else
+			$x = $left
+			$y = $y + 1
+		EndIf
+	WEnd
+	
+EndFunc
+
+; Для целей BitmapSearch - проверяет соответствие $bitmap и экрана в точке ($x0; $y0)
+Func _BitmapMatch($bitmap, $x0, $y0, $tolerance = 0)
+	
+	Local $x, $y
+	
+	For $x = 0 To UBound($bitmap, 1) - 1
+		For $y = 0 To UBound($bitmap, 2) - 1
+			If Not ColorMatches(PixelGetColor($x0 + $x, $y0 + $y), $bitmap[$x][$y], $tolerance) Then Return False
+		Next
+	Next
+	
+	Return True
+	
+EndFunc
+
+; Получает хэш (checksum) пикселей области экана радиусом $radius вокруг (воквадрат, на самом деле) точки $point
+Func GetHashAtPoint($x, $y, $radius = 2)
+	Return PixelChecksum($x - $radius, $y - $radius, $x + $radius, $y + $radius)
+EndFunc
+
+; Проверяет соответствует ли хэш в точке $point радиусом $radius требуемому хэшу $hash
+Func IsHashAtPoint($x, $y, $hash, $radius = 2)
+	Return $hash = GetHashAtPoint($x, $y, $radius)
+EndFunc
+
+; Нечётко сравнивает (допуск $tolerance: 0 - строго, больше - мягче) два цвета друг с другом.
+; Цвета можно задавать в виде массива RGB и числом
+Func ColorMatches($color, $sample, $tolerance = 0)
+	If $tolerance Then  ; для оптимизации
+		If Not IsNumber($color)  Then $color  = _ColorSetRGB($color)   ; приводим тип к числу
+		If Not IsNumber($sample) Then $sample = _ColorSetRGB($sample)  ; приводим тип к числу
+		Return $color = $sample   ; строгое равенство
+	EndIf
+	If IsNumber($color)  Then $color  = _ColorGetRGB($color)   ; приводим тип к массиву RGB
+	If IsNumber($sample) Then $sample = _ColorGetRGB($sample)  ; приводим тип к массиву RGB
+	For $c = 0 To 2   ; покомпонентное сравнение
+		If ($color[$c] > ($sample[$c] + $tolerance)) Or ($color[$c] < ($sample[$c] - $tolerance)) Then
+			Return False
+		EndIf
+	Next
+	Return True
+EndFunc
+
+; Преобразует строку вида "2,5,7-9,12" в массив чисел
+Func ParseNumberRange($value, $min = '', $max = '')
+	
+	Local $values[1] = [0]
+	_ParseNumberRange($value, $values, $min, $max)
+	$values[0] = UBound($values) - 1
+	Return $values
+	
+	
+EndFunc
+
+; Преобразует строку вида "2,5,7-9,12" в массив чисел
+Func _ParseNumberRange($value, ByRef $array, $min = '', $max = '')
+	
+	If IsNumber($value) Then
+		If IsNumber($min) And ($value < $min) Then Return False
+		If IsNumber($max) And ($value > $max) Then Return False
+		_ArrayAdd($array, $value)
+	ElseIf StringIsInt($value) Then
+		Return _ParseNumberRange(Int($value), $array, $min, $max)
+	ElseIf IsString($value) Then  ; "2,5,7-9,12"
+		Local $values = StringSplit($value, ',')
+		For $i = 1 to $values[0]
+			If StringInStr($values[$i], '-') Then  ; this is a range
+				Local $range = StringSplit($values[$i], '-')
+				If $range[0] <> 2 Then Return False  ; malformed range
+				Local $start = StringStripWS($range[1], 8)
+				Local $end   = StringStripWS($range[2], 8)
+				If Not StringIsInt($start) Or Not StringIsInt($end) Then Return False  ; malformed range
+				$start = Int($start)
+				$end   = Int($end)
+				If $start >= $end Then Return False  ; malformed range
+				For $r = $start To $end
+					If _ParseNumberRange($r, $array, $min, $max) = False Then Return False
+				Next
+			Else
+				If _ParseNumberRange(StringStripWS($values[$i], 8), $array, $min, $max) = False Then Return False
+			EndIf
+		Next
+	ElseIf IsArray($value) Then
+		For $i = 0 to UBound($values) - 1
+			If _ParseNumberRange($values[$i], $array, $min, $max) = False Then Return False
+		Next
+	Else
+		Return False
+	EndIf
+	
+	Return True
+	
+EndFunc
+
+Func ParseDepositsRange($string)
+	
+	Local $values[1]
+	
+	If _ParseNumberRange($string, $values, 1, UBound($deposits) - 1) = False Then
+		dbg('Неверно задан диапазон месторождений.')
+		Return 0
+	Else
+		$values[0] = UBound($values) - 1
+		Return $values
+	EndIf
+	
+EndFunc
+
+; Костылеобразная Функция реализует синтаксис нормального скриптового языка: $subarray = $array[$num].
+; AutoIt оперирует массивами как матрицами, а не как массивами массивов. Поэтому нельзя просто получить в переменную подмассив из массива.
+Func _ArrayRow($array, $num)
+	Local $row[UBound($array, 2)]
+	For $i = 0 To UBound($row) - 1
+		$row[$i] = $array[$num][$i]
+	Next
+	Return $row
+EndFunc
+
+
+
+; -------------------------------------------------------------------------------------------
+; Функции отладки
+; -------------------------------------------------------------------------------------------
+
+Func dbg($message)
+	ConsoleWrite($message & @CRLF)
+EndFunc
+
+Func tic()
+	Global $tic = TimerInit()
+EndFunc
+
+Func tac($text = '')
+	Global $tac = TimerDiff($tic)
+	dbg($text & 'time: ' & $tac)
+EndFunc
+
+Func ConsoleWriteLn($message)
+	ConsoleWrite($message & @CRLF)
+EndFunc
+
+Func MoveMouseOverRect($left, $top, $right, $bottom)
+	Local $speed = 2
+	MouseMove($left,  $bottom, $speed)
+	MouseMove($left,  $top,    $speed)
+	MouseMove($right, $top,    $speed)
+	MouseMove($right, $bottom, $speed)
+	MouseMove($left,  $bottom, $speed)
+EndFunc
+
+Func Color2Str($color)
+	Return "[" & $color[0] & ", " & $color[1] & ", " & $color[2] & "]"
+EndFunc
+
+Func Point2Str($point)
+	Return "[" & $point[0] & "; " & $point[1] & "]"
+EndFunc
+
+; Получает битмап области экрана из точки ($x0, $y0), шириной $width, высотой $height. Печатает готовый кусок кода в консоль
+Func GetBitmap($x0, $y0, $width, $height, $var = '$bitmap')
+	
+	Local $x, $y, $color, $bitmap[$width][$height]
+	
+	ConsoleWrite($var & '[' & $width & '][' & $height & '] = [')
+	$width  -= 1
+	$height -= 1
+	For $x = 0 To $width
+		ConsoleWrite('[')
+		For $y = 0 To $height
+			$color = PixelGetColor($x0 + $x, $y0 + $y)
+			$bitmap[$x][$y] = $color
+			ConsoleWrite('0x' & Hex($color, 6) & _Iif($y = $height, '', ','))
+		Next
+		ConsoleWrite(']' & _Iif($x = $width, '', ','))
+	Next
+	ConsoleWrite(']' & @CRLF)
+	
+	Return $bitmap
+	
+EndFunc
+
+; Получает хэш слота $slot (в центре радиусом по-умолчинию). Печатает готовый кусок кода в консоль
+Func GetSlotHash($slot, $var = '$slotHash')
+	
+	If Not IsStarOpened() Then OpenStar()
+	Local $slotHash = GetHashAtPoint($slotsPos[$slot][0], $slotsPos[$slot][1])
+	ConsoleWrite($var & ' = ' & $slotHash & @CRLF)
+	Return $slotHash
+
+EndFunc
+
+; Получает хэши всех слотов
+Func GetAllSlotHashes()
+	
+	If Not IsStarOpened() Then OpenStar()
+	Local $slotHash, $index, $name, $text = 'slot   hash             name'
+	For $slot = 1 To 18
+		$slotHash = GetHashAtPoint($slotsPos[$slot][0], $slotsPos[$slot][1])
+		$index = _ArraySearch($slotHashes, $slotHash)
+		If $index >= 0 Then
+			$name = $slotHashes[$index][1]
+		Else
+			$name = 'unknown'
+		EndIf
+		$text = $text & @CRLF & $slot & ' : hash: ' & $slotHash & ', name: ' & $name
+	Next
+	
+	TextDisplay($text)
+
+EndFunc
+
+; Для проверки правильности координат лунок
+Func CheckDepositsPositions($from, $to)
+	
+	Local $slotType = 0, $slot = 0, $dep
+	
+	For $i = $from To $to
+		$dep = _ArrayRow($deposits, $i)
+		If $slotType <> $dep[0] Then
+			$slot = FindSlotOfType($dep[0])
+			If $slot = 0 Then
+				Err('Slot of type ' & $dep[0] & ' not found: cannot check deposit #' & $i)
+			Else
+				$slotType = $dep[0]
+				MouseMoveToSlot($slot)
+				MouseClick('left')
+			EndIf
+		EndIf
+		MouseMoveToTarget($dep)
+		Sleep(1000)
+	Next
+	
+EndFunc
+
+Func TextDisplay($text = "", $title = "AutoFeed")
+
+	Local $form = GUICreate($title, 620, 435, -1, -1) ; create the basic form. Width = 620, Height - 435. Left and Top = -1. -1 Is default (centered in this case)
+	Local $edit = _GUICtrlEdit_Create($form, "", 0, 0, 620, 435, BitOr($ES_MULTILINE, $ES_WANTRETURN, $ES_AUTOVSCROLL)) ; Create the actual place to edit text. Left and Top = 0. Sets it so that the start is the top left corner. Width = 620, Height = 435. Makes it the same size as the window.
+	GUICtrlSetResizing(-1, 102) ; Set the resizing. Control = -1. -1 is the last control created/used. Resizing = 102. Makes it grow or shrink with the window.
+	_GUICtrlEdit_SetText($edit, $text) ; Set the file contents to be displayed.
+	GUISetState() ; Show the window.
+
+	While 1
+		If GUIGetMsg() == $GUI_EVENT_CLOSE Then Exit
+	WEnd
+
+EndFunc
