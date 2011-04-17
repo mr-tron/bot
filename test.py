@@ -3,12 +3,14 @@
 from koordinat_seacher import find_template
 from PIL import Image
 from screenshot import get_screenshot
-search_image = get_screenshot()
-template_image = Image.open("/home/mr_tron/downloads/template.png")
-#print find_template(search_image, template_image)
+from clicker import mymouse
+from send_key import kc, my_keyboard
+from window_activate import window_activate
+from pixel_colour import get_colour
 
-from send_key import my_keyboard, kc
-
-k = my_keyboard()
-k.send(10)
-
+K = {}
+K[start_game] = (0,0)
+K[download_proverka] = (0,0)
+K[ok_login] = (0,0)
+K[star_del] = (0,0)
+K[avatar_proverka] = (0,0)
