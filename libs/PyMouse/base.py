@@ -20,7 +20,6 @@ PyMouse should work on Windows, Mac and any Unix that has xlib.
 See http://github.com/pepijndevos/PyMouse for more information.
 """
 
-import sys
 from threading import Thread
 
 class PyMouseMeta(object):
@@ -62,10 +61,12 @@ class PyMouseMeta(object):
         raise NotImplementedError
 
 class PyMouseEventMeta(Thread):
-    
-    deamon = True
-    capture = False
-    state = False
+    def __init__(self, capture=False, captureMove=False):
+        Thread.__init__(self)
+        self.daemon = True
+        self.capture = capture
+        self.captureMove = captureMove
+        self.state = True
 
     def stop(self):
         self.state = False
@@ -79,18 +80,3 @@ class PyMouseEventMeta(Thread):
         """Subclass this method with your move event handler"""
 
         pass
-
-
-
-if sys.platform.startswith('java'):
-    from java_ import PyMouse
-
-elif sys.platform == 'darwin':
-    from mac import PyMouse, PyMouseEvent
-
-elif sys.platform == 'win32':
-    from windows import PyMouse, PyMouseEvent
-
-else:
-    from unix import PyMouse, PyMouseEvent
-    
