@@ -21,7 +21,7 @@ def rectcenter(rect):
 	if (len(rect) == 2):
 		return (rect[0] / 2, rect[1] / 2)
 	else:
-		return ((rect[0] + rect[2]) / 2, (rect[1] + rect[3]) / 2)
+		return ((rect[0] + rect[2] + 1) / 2, (rect[1] + rect[3] + 1) / 2)
 
 class classproperty(property):
 	"""Subclass property to make classmethod properties possible"""
