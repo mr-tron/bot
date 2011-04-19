@@ -269,7 +269,7 @@ Global $deposits[43][5] = [ _
 [2, 1599, 717, 0, 'wild'], _
 [2, 1353, 797, 0, 'wild'], _
 [2, 1014, 911, 0, 'wild'], _
-[2, 1015, 782, 0, 'wild'], _
+[2, 1015, 775, 0, 'wild'], _
 [2, 769, 884, 0, 'wild'] _
 ]
 
@@ -379,7 +379,7 @@ Func ActivateClient()
 	
 	; Опера пренепременно хочет, чтобы в неё таки тыкнули
 ;~ 	If ($browser[0] = "Opera") Then
-		MoveMouse($clientPos[0] + Round($clientPos[2] / 2), $clientPos[1] + Round($clientPos[3] / 2))  ; центр клиента
+		MoveMouse($clientPos[0] + Round($clientPos[2] / 2), $clientPos[1] + 100)  ; центр клиента
 		MouseClick('left')
 ;~ 	EndIf
 
