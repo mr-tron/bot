@@ -7,7 +7,7 @@ slots = {
 	},
 	'boost6h' : {
 		'hash' : 'AAA378D5',
-		'title' : 'Irma\'s basket',
+		'title' : "Irma's basket",
 		'type' : 'boost',
 	},
 }
