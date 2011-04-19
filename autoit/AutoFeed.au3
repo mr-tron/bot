@@ -203,7 +203,7 @@ Global Const $slotHashes[20][2] = [ _
 	[724247114,  '30 minutes buff'], _    ; 12 "Fish plate"
 	[193206745,  '2 hours buff'], _       ; 13 "Solid Sandwich"
 	[3880594669, '6 hours buff'], _       ; 14 "Aunt Irma's Gift Basket"
-	[3032490639, '12 hours'], _           ; 15 корзинок с экзотическими фруктами (12h)
+	[1780684021, '12 hours'], _           ; 15 корзинок с экзотическими фруктами (12h)
 	[3032490639, 'Easter egg'] _          ; 16 пасхальных яиц
 ]
 
