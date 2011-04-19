@@ -86,7 +86,7 @@ class StarMenu:
 	def __init__(self, star):
 		self.never     = True     # whether the menu have never been opened
 		self.pos       = None     # position of found image
-		self.timeout   = 5        # seconds to wait for menu to be opened
+		self.timeout   = 3        # seconds to wait for menu to be opened
 		self.image     = Image.open('res/star-menu-center.png') # linking image of the menu, used for searching it on the screen
 		self.star      = star     # reference to Star object
 		self.size      = (384, 251)
@@ -184,7 +184,7 @@ class StarMenu:
 	# and watch debug console
 	def detect_slots(self):
 		if not self.opened: self.open()
-		client.debug('Detecting slots on opened tab...')
+		client.debug('\033[1;33mDetecting slots on opened tab...\033[0m')
 		detected = {}
 		for n in range(1, 19):
 			saved = ''
@@ -202,8 +202,9 @@ class StarMenu:
 				saved = 'slot-%02d.png' % n
 				image.save(saved)
 				detected[hash] = slot
-			client.debug('   %02d : %s (%s)%s' % (n, slot['title'], slot['hash'], saved and (', saved to "%s"' % saved)))
-		client.debug('Found new slot types: %d' % len(detected))
+			if (saved): print '\033[32m   %02d : \033[1m%s\033[0;32m %s, saved to "\033[1m%s\033[0;32m"\033[0m' % (n, slot['hash'], slot['title'], saved)
+			else:       print '\033[33m   %02d : \033[1m%s\033[0;33m %s\033[0m' % (n, slot['hash'], slot['title'])
+		print '\033[33mFound new slot types: \033[1m%d\033[0m' % len(detected)
 		return self
 	
 	
@@ -299,19 +300,21 @@ class StarMenu:
 
 
 
-mouse.speed = 5
+mouse.speed = 1.8
 game = Game()
 menu = game.star.menu
 
 
-def gc(): return (mouse.position[0] - 960, mouse.position[1] - 644)
-
+print 'client.center:', client.center
+kopilo = {}
+def gc(key): cc = (960, 631); mp = mouse.position; op = (mp[0] - cc[0], mp[1] - cc[1]); kopilo[key] = { 'pos' : op, 'res' : 'meat', 'type' : 'deposit' }
 
 
 # Перемещает указатель мыши в точку dest, заданную в относительных координатах (`objects`)
 def goto(x, y = None):
 	if isinstance(x, (list, tuple)): x, y = x
-	c = client.center
+	c = list(client.center)
+	if client.size[1] < 800: c[1] = client.pos[1] + 400
 	mouse.move(x + c[0], y + c[1])
 
 # Перемещает указатель мыши на центр слота $slot
@@ -323,7 +326,7 @@ def mouse_move_to_slot(slot):
 # Определяет соответствует ли слот $slot типу $type (по хэшу)
 def is_slot_of_type(slot, hashes):
 	self = game.star.menu
-	return self.get_slot_hash(slot) in hashes 
+	return self.get_slot_hash(slot) in hashes
 
 
 # Ищет во всём меню первый слот с типом $type, начиная со слота $start
@@ -352,7 +355,7 @@ def select_slot(hashes):
 
 
 # setl -> slot-employ-target-loop :)
-def _setl(targets, count = '*'):
+def _setl(targets, count = '*', accepts = None):
 	self = game
 	
 	if isinstance(targets, str):
@@ -379,13 +382,12 @@ def _setl(targets, count = '*'):
 	
 	while count == '*' or feeded < count:
 		target = targets.next()
-		accepts_slots = [ slots['fishfood']['hash'] ]  # TODO generalize
 		self.star.menu.open_tab(4) # TODO generalize
-		if not select_slot(accepts_slots):
+		if not select_slot(accepts or target['accepts']):
 			client.error('Не найдено доступных слотов с кормёжкой. Накормлено: %d' % feeded)
 			return feeded
 		goto(target['pos']) # перемешаем курсор на target
-		mouse.click()    # кликаем по лунке, тобиш кормим её
+		mouse.sleep(0.1).click().sleep(0.2)    # кликаем по лунке, тобиш кормим её
 		feeded += 1      # считаем, что накормили
 	
 	client.debug('Очередь кормёжки закончена. Накормлено: %d' % feeded)
@@ -399,9 +401,19 @@ def feed(targets, count = '?'):
 	# TODO only deposits
 	return _setl(targets, count)
 
+def settle(count = '?'):
+	# TODO only settlers
+	return _setl(0, count)
+
+def drop(count = '*'):
+	# TODO exclude settlers
+	return _setl(0, count)
 
 
-feed('1') # рррррррррррррработает
+#mouse.speed = 2
+#menu.detect_slots()
+#feed('32-33')
+#drop()
 
 
 """
