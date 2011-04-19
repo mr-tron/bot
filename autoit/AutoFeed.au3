@@ -31,6 +31,10 @@
 ;                                      ИСТОРИЯ ВЕРСИЙ
 ; -------------------------------------------------------------------------------------------
 ;
+; 0.2.6.3 (2011.04.20)
+;   - Добавлена переменная $scrollpages - количество страниц для пролистывания при поиске дропов и кормежки
+; 0.2.6.2 (2011.04.20)
+;   - Процедуры Drop и Feed адаптированы под новую систему позиционирования
 ; 0.2.6.1 (2011.04.18)
 ;   - Добвлен хэш пасхальных яиц и корзинок с экзотическими фруктами
 ;   - Пофиксена GetAllSlotHashes()
@@ -142,6 +146,7 @@ If Not IsDeclared("menuTimeout") Then Global Const $menuTimeout = 5000
 ; Сообщать об окончании очереди, недоступности слотов и т.д.
 If Not IsDeclared("verbose") Then Global Const $verbose = True
 
+If Not IsDeclared("scrollpages") Then Global Const $scrollpages = 0
 
 
 ; -------------------------------------------------------------------------------------------
@@ -289,7 +294,7 @@ Global $browserWindow = 0   ; дескриптор окна браузера
 Global $browser[3]          ; данные браузера (содержит строчку из $browsers с текущим браузером)
 
 ; Переменные геометрии элементов управления игры. Вычисляются по ходу дела
-Global $clientPos, $starPos, $menuPos[2], $slotsPos[19][2], $tabsPos[6][2], $tabsBasePos[6][2]
+Global $clientPos, $starPos, $menuPos[2], $slotsPos[19][2], $tabsPos[6][2], $tabsBasePos[6][2], $sbPos[2]
 Global $clientCenter[2]
 
 
@@ -373,11 +378,14 @@ Func ActivateClient()
 	EndIf
 	
 	; Опера пренепременно хочет, чтобы в неё таки тыкнули
-	If ($browser[0] = "Opera") Then
+;~ 	If ($browser[0] = "Opera") Then
 		MoveMouse($clientPos[0] + Round($clientPos[2] / 2), $clientPos[1] + Round($clientPos[3] / 2))  ; центр клиента
 		MouseClick('left')
-	EndIf
+;~ 	EndIf
 
+	Sleep(100)
+	Send('0')
+	Sleep(100)
 	MouseWheel("down", 10)  ; минимальный масштаб карты
 	; Преобразовываем координаты $deposits
 	TransDeps()
@@ -514,6 +522,8 @@ Func IsStarOpened()
 		If $pos = 0 Then                                  ; не нашли
 			Return False                                  ; значит меню закрыто
 		Else                                              ; если нашли на экране битмап, то
+			$sbPos[0] = $pos[0] + 164
+			$sbPos[1] = $pos[1] + 232
 			$menuHashPos = $pos                           ; запомним позицию найденного битмапа
 			$menuHash = GetHashAtPoint($pos[0], $pos[1])  ; найдём и запомним хэш в этой точке
 			CalcMenuDimensions($pos)                      ; определим размеры меню по найденной позиции битмапа
@@ -627,8 +637,14 @@ EndFunc
 ; Ищет во всём меню первый слот с типом $type, начиная со слота $start
 Func FindSlotOfType(ByRef $type)
 	OpenStar()
-	For $slot = 1 To 18
-		If IsSlotOfType($slot, $type) Then Return $slot
+	for $page = 0 to $scrollpages
+		if $page > 0 then
+			MouseClick("left", $sbPos[0], $sbPos[1])    ; Пролистываем
+			Sleep(100)
+		EndIf
+		For $slot = 1 To 18
+			If IsSlotOfType($slot, $type) Then Return $slot
+		Next
 	Next
 	Return 0
 EndFunc
