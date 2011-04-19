@@ -89,6 +89,6 @@ Func Cleanup()
 	DllCallbackFree($hKeyboardProc)
 EndFunc
 
-Func Terminate()
-    Exit 0
-EndFunc
+;~ Func Terminate()
+;~     Exit 0
+;~ EndFunc

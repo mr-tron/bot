@@ -185,7 +185,7 @@ Global Const $menuBitmap[4][4] = [[0xADA6A2,0xA29B97,0x9F9895,0x9C958F],[0xA7A09
 Global Const $slotHashes[20][2] = [ _
 	[1969295491, 'Empty'], _              ; 00
 	[2416256132, 'Fishfood'], _           ; 01
-	[1455886620, 'Wildfood'], _           ; 02 "Musk deer fragrance"
+	[1257575554, 'Wildfood'], _           ; 02 "Musk deer fragrance"
 	[1688480899, '+ Settlers'], _         ; 03
 	[901125509,  '+ Fir wood planks'], _  ; 04
 	[2273910955, '+ Stones'], _           ; 05
@@ -198,8 +198,8 @@ Global Const $slotHashes[20][2] = [ _
 	[724247114,  '30 minutes buff'], _    ; 12 "Fish plate"
 	[193206745,  '2 hours buff'], _       ; 13 "Solid Sandwich"
 	[3880594669, '6 hours buff'], _       ; 14 "Aunt Irma's Gift Basket"
-	[3032490639, '12 hours'], _           ; 16 корзинок с экзотическими фруктами (12h)
-	[3032490639, 'Easter egg'] _          ; 15 пасхальных яиц
+	[3032490639, '12 hours'], _           ; 15 корзинок с экзотическими фруктами (12h)
+	[3032490639, 'Easter egg'] _          ; 16 пасхальных яиц
 ]
 
 
@@ -217,53 +217,66 @@ Global $menuHash, $menuHashPos
 ; Предполагается, что таким образом координаты лунок будут у всех одинаковые и каждому пользователю не нужно будет высчитывать их значения для себя.
 ; Ему будет достаточно задать некий "унифицированный" номер месторождения (суть индекс в массиве $deposits).
 ; Будет ли это всё работать - ещё надо проверить...
+; $cc_b - базовая координата центра клиента - именно для нее указаны координаты deposits. При изменении координат центра экрана deposits пересчитываются - TransDeps
 
-Global $deposits[43][4] = [ _
-	[ 3,   42,  -79, 7 ], _ ; townhall
-	[ 1,  152,   84, 7 ], _ ; fish 1
-	[ 1,  104,   84, 7 ], _ ; fish 2
-	[ 1,  -37,   84, 7 ], _ ; fish 3
-	[ 1, -164,   92, 7 ], _ ; fish 4
-	[ 1,  -60,   -2, 7 ], _ ; fish 5
-	[ 1, -199,  -88, 7 ], _ ; fish 6
-	[ 1, -153,   70, 1 ], _ ; fish 7
-	[ 1, -119,   35, 1 ], _ ; fish 8
-	[ 1, -246,   -1, 1 ], _ ; fish 9
-	[ 1, -246,  -17, 1 ], _ ; fish 10
-	[ 1,  -59,  -16, 1 ], _ ; fish 11
-	[ 1,   81,  -74, 1 ], _ ; fish 12
-	[ 1,  244, -102, 1 ], _ ; fish 13
-	[ 1,  269, -102, 1 ], _ ; fish 14
-	[ 1,  151,  -31, 9 ], _ ; fish 15
-	[ 1,  127,  -31, 9 ], _ ; fish 16
-	[ 1,   58,  -86, 9 ], _ ; fish 17
-	[ 1,   11,  -59, 9 ], _ ; fish 18
-	[ 1,  -59,   85, 9 ], _ ; fish 19
-	[ 1, -130,   55, 9 ], _ ; fish 20
-	[ 1, -202,   85, 5 ], _ ; fish 21
-	[ 1, -118,    5, 5 ], _ ; fish 22
-	[ 1, -178,  -61, 5 ], _ ; fish 23
-	[ 1, -270, -117, 5 ], _ ; fish 24
-	[ 1,  105,  201, 1 ], _ ; fish 25
-	[ 2, -165,    7, 8 ], _ ; wild 26
-	[ 2, -166,  -96, 8 ], _ ; wild 27
-	[ 2, -212,  -24, 1 ], _ ; wild 28
-	[ 2,  105,   -2, 1 ], _ ; wild 29
-	[ 2, -107, -146, 2 ], _ ; wild 30
-	[ 2,  162,  -67, 2 ], _ ; wild 31
-	[ 2,  -60,   -2, 3 ], _ ; wild 32
-	[ 2,  -38,   12, 3 ], _ ; wild 33
-	[ 2,   22,  150, 3 ], _ ; wild 34
-	[ 2,   33,  170, 3 ], _ ; wild 35
-	[ 2, -200,   -1, 6 ], _ ; wild 36
-	[ 2,   34,   57, 6 ], _ ; wild 37
-	[ 2,  186, -139, 9 ], _ ; wild 38
-	[ 2,  -60,  -59, 9 ], _ ; wild 39
-	[ 2,   91,   48, 8 ], _ ; wild 40
-	[ 2,   92,  -81, 8 ], _ ; wild 41
-	[ 2,  -71,  -80, 5 ]  _ ; wild 42
+Global $cur_scroll[2] = [0,0]
+Global const $cc_b[2] = [840, 516]
+
+Global $deposits[43][5] = [ _ 
+[3, 472, 777, 0, 'townhall'], _
+[1, 582, 940, 0, 'fish'], _
+[1, 534, 940, 0, 'fish'], _
+[1, 393, 940, 0, 'fish'], _
+[1, 266, 948, 0, 'fish'], _
+[1, 370, 854, 0, 'fish'], _
+[1, 231, 768, 0, 'fish'], _
+[1, 277, 321, 0, 'fish'], _
+[1, 311, 286, 0, 'fish'], _
+[1, 184, 250, 0, 'fish'], _
+[1, 184, 234, 0, 'fish'], _
+[1, 371, 235, 0, 'fish'], _
+[1, 511, 177, 0, 'fish'], _
+[1, 674, 149, 0, 'fish'], _
+[1, 699, 149, 0, 'fish'], _
+[1, 1564, 825, 0, 'fish'], _
+[1, 1540, 825, 0, 'fish'], _
+[1, 1471, 770, 0, 'fish'], _
+[1, 1424, 797, 0, 'fish'], _
+[1, 1354, 941, 0, 'fish'], _
+[1, 1283, 911, 0, 'fish'], _
+[1, 638, 1049, 0, 'fish'], _
+[1, 722, 969, 0, 'fish'], _
+[1, 662, 903, 0, 'fish'], _
+[1, 570, 847, 0, 'fish'], _
+[1, 535, 452, 0, 'fish'], _
+[2, 758, 870, 0, 'wild'], _
+[2, 759, 767, 0, 'wild'], _
+[2, 218, 227, 0, 'wild'], _
+[2, 535, 249, 0, 'wild'], _
+[2, 733, 105, 0, 'wild'], _
+[2, 1002, 184, 0, 'wild'], _
+[2, 1353, 249, 0, 'wild'], _
+[2, 1375, 263, 0, 'wild'], _
+[2, 1435, 401, 0, 'wild'], _
+[2, 1446, 421, 0, 'wild'], _
+[2, 1213, 552, 0, 'wild'], _
+[2, 1447, 610, 0, 'wild'], _
+[2, 1599, 717, 0, 'wild'], _
+[2, 1353, 797, 0, 'wild'], _
+[2, 1014, 911, 0, 'wild'], _
+[2, 1015, 782, 0, 'wild'], _
+[2, 769, 884, 0, 'wild'] _
 ]
 
+Func TransDeps()
+	$clientCenter[0] = $clientPos[0] + Round($clientPos[2] / 2)
+	$clientCenter[1] = $clientPos[1] + Round($clientPos[3] / 2)
+	Local $d[2] = [$clientCenter[0] - $cc_b[0], $clientCenter[1] - $cc_b[1]]
+	For $i = 0 to UBound($deposits,1) - 1
+		$deposits[$i][1] = $deposits[$i][1] + $d[0] 
+		$deposits[$i][2] = $deposits[$i][2] + $d[1] 
+	Next
+EndFunc
 
 
 ; -------------------------------------------------------------------------------------------
@@ -277,6 +290,7 @@ Global $browser[3]          ; данные браузера (содержит с
 
 ; Переменные геометрии элементов управления игры. Вычисляются по ходу дела
 Global $clientPos, $starPos, $menuPos[2], $slotsPos[19][2], $tabsPos[6][2], $tabsBasePos[6][2]
+Global $clientCenter[2]
 
 
 ; Известные константы геометрии
@@ -365,7 +379,8 @@ Func ActivateClient()
 	EndIf
 
 	MouseWheel("down", 10)  ; минимальный масштаб карты
-	
+	; Преобразовываем координаты $deposits
+	TransDeps()
 EndFunc
 
 ; Спрашивает у пользователя количество кормёжек
@@ -452,7 +467,28 @@ Func Rand($a, $b)
 	EndIf
 EndFunc
 
-Func MoveMouse($x, $y, $dx = 0, $dy = 0)
+Func MoveMouse($bx, $by, $dx = 0, $dy = 0, $scroll = false)
+	Local $x = $bx, $y = $by
+	if $scroll then
+		$x = $bx - $cur_scroll[0]
+		$y = $by - $cur_scroll[1]
+		while $y < $clientPos[1] + 40
+			MouseMove($clientCenter[0] - 150, $clientCenter[1])
+			MouseDown("left")
+			MouseMove($clientCenter[0] - 150, $clientCenter[1]+200)
+			MouseUP("left")
+			$y = $y + 200
+		Wend
+		while $y + 200 > $clientPos[1] + $clientPos[3]
+			MouseMove($clientCenter[0] - 150, $clientCenter[1])
+			MouseDown("left")
+			MouseMove($clientCenter[0] - 150, $clientCenter[1]-200)
+			MouseUP("left")
+			$y = $y - 200
+		wend
+		$cur_scroll[0] = $bx - $x
+		$cur_scroll[1] = $by - $y
+	EndIf
 	MouseMove($x + Rand(-$dx, $dx), $y + Rand(-$dy, $dy), Rand($mouseMoveSpeedMin, $mouseMoveSpeedMax))
 EndFunc
 
@@ -627,9 +663,9 @@ EndFunc
 
 ; Перемещает курсор на заданную лунку с месторождением
 Func MouseMoveToTarget($target)
-	GoToSector($deposits[$target][3])  ; перемещаем карту в сектор с лункой
-	Local $sectorCenter[2] = [$clientPos[0] + Round($clientPos[2]/2), $clientPos[1] + _Iif($clientPos[3] < 800, 400, Round($clientPos[3]/2))] ; хитрая позиция центра сектора
-	MoveMouse($sectorCenter[0] + $deposits[$target][1], $sectorCenter[1] + $deposits[$target][2])  ; идём по координатам относительно центра сектора
+	;GoToSector($deposits[$target][3])  ; перемещаем карту в сектор с лункой
+	;Local $sectorCenter[2] = [$clientPos[0] + Round($clientPos[2]/2), $clientPos[1] + _Iif($clientPos[3] < 800, 400, Round($clientPos[3]/2))] ; хитрая позиция центра сектора
+	MoveMouse($deposits[$target][1], $deposits[$target][2],0,0,true)  ; идём по координатам относительно центра сектора
 EndFunc
 
 Func GetSlotTypeForTaskTarget($taskName, $target)
