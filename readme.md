@@ -17,7 +17,11 @@ quicklinks:
 
 ## On Unix
 
- - install python-gtk2, python-xlib (on you system name can be difference)
+ - install python-gtk2, python-xlib, numpy (on you system name can be difference)
+
+# On Ununtu
+
+    sudo apt-get install python-gtk2 python-xlib python-numpy
 
 ## On Mac
 
