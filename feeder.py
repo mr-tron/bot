@@ -414,6 +414,7 @@ def drop(count = '*'):
 #menu.detect_slots()
 #feed('32-33')
 #drop()
+#settle('*')
 
 
 """

@@ -1,49 +1,54 @@
 
 slots = {
 	'fish-food' : {
-		'hash' : '8D6590FB',
+		'hash'  : '8D6590FB',
 		'title' : 'Fish food',
 		'type'  : 'food',
 	},
 	'meat-food' : {
-		'hash' : '29AB81DB',
+		'hash'  : '29AB81DB',
 		'title' : 'Meat food',
 		'type'  : 'food',
 	},
 	'stone' : {
-		'hash' : '5F2990E7',
+		'hash'  : '5F2990E7',
 		'title' : '+ Stone',
 		'type'  : 'res',
 	},
 	'fir-wood-planks' : {
-		'hash' : 'A61C58B2',
+		'hash'  : 'A61C58B2',
 		'title' : '+ Fir wood planks',
 		'type'  : 'res',
 	},
 	'marble' : {
-		'hash' : '52DBB76F',
+		'hash'  : '52DBB76F',
 		'title' : '+ Marble',
 		'type'  : 'res',
 	},
 	'hard-wood-planks' : {
-		'hash' : '382170A6',
+		'hash'  : '382170A6',
 		'title' : '+ Hard wood planks',
 		'type'  : 'res',
 	},
 	'gold' : {
-		'hash' : '77A590E8',
+		'hash'  : '77A590E8',
 		'title' : '+ Gold',
 		'type'  : 'res',
 	},
 	'easter-egg' : {
-		'hash' : 'B5F6B2E8',
+		'hash'  : 'B5F6B2E8',
 		'title' : '+ Easter egg',
 		'type'  : 'res',
 	},
 	'boost6h' : {
-		'hash' : 'AAA378D5',
+		'hash'  : 'AAA378D5',
 		'title' : "Irma's basket",
-		'type' : 'boost',
+		'type'  : 'boost',
+	},
+	'settler' : {
+		'hash'  : '3B6D9377',
+		'title' : 'Settler',
+		'type'  : 'res',
 	},
 }
 
