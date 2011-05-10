@@ -10,9 +10,9 @@ Global $cur_scroll[2] = [0,0]
 Global $menuHash, $menuHashPos
 
 ; переменные для автологина
-If Not IsDeclared("runpath") Then Global Const $runpath = ''
-If Not IsDeclared("login") Then Global Const $login = ''
-If Not IsDeclared("passwd") Then Global Const $passwd = ''
+If Not IsDeclared("runpath") Then Global $runpath = ''
+If Not IsDeclared("login") Then Global $login = ''
+If Not IsDeclared("passwd") Then Global $passwd = ''
 If Not IsDeclared("autologin") Then Global Const $autologin = False
 If Not IsDeclared("autoactivate") Then Global Const $autoactivate = True
 
@@ -104,8 +104,9 @@ Global $deposits[75][5] = [ _
 [4, 1495, 665, 0, 'Железная руда'] _
 ]
 
-Global $base_xy[33][3] = [ _ ; базовые координаты элементов игры
+Global $base_xy[40][3] = [ _ ; базовые координаты элементов игры
 ['Рынок', 124, 841], _
+['Чат', 18, 841], _
 ['Предложение на рынок', 254, 794], _
 ['Первый итем', 670, 460], _
 ['Товар=1', 718, 692], _
@@ -119,15 +120,16 @@ Global $base_xy[33][3] = [ _ ; базовые координаты элемен�
 ['Закладка2', 789, 619], _
 ['Закладка3', 902, 619], _
 ['Сообщения', 1055, 836], _
-['Сообщение 1', 849, 391], _
+['Сообщение 1', 696, 388], _
+['Удалить сообщение 1', 1105, 391], _
 ['Принять предложение', 807, 686], _
 ['Отклонить предложение', 880, 690], _
 ['Первый друг', 565, 917], _
 ['Торовать с другом', 565 + 632 - 565, 917 + 885 - 917], _
 ['Ок', 960, 670], _
 ['Принять подарок', 864, 623], _
-['Искать сокровища', 811, 556], _
-['ИскатьОк', 802, 655], _
+['Искать16', 811, 556], _
+['Искать17', 802, 655], _
 ['На склад', 899, 670], _
 ['Закрыть сообщения', 1112, 333], _
 ['Торговать', 852, 542], _
@@ -137,7 +139,9 @@ Global $base_xy[33][3] = [ _ ; базовые координаты элемен�
 ['Buff6h', 841, 483], _
 ['Корм для рыб', 751, 529], _
 ['Корм для животных', 798, 624], _
-['Уха', 750, 483] _              
+['Уха', 750, 483], _           
+['Друзья', 1193, 894], _           
+['Гильдия', 1194, 957] _           
 ]
 
 
@@ -145,6 +149,8 @@ Func TransDeps()
 	$clientCenter[0] = $clientPos[0] + Round($clientPos[2] / 2)
 	$clientCenter[1] = $clientPos[1] + Round($clientPos[3] / 2)
 	Local $d[2] = [$clientCenter[0] - $cc_b[0], $clientCenter[1] - $cc_b[1]]
+;~ 	_FileWriteLog($logpath, "$d[0] = "&$d[0])
+;~ 	_FileWriteLog($logpath, "$d[1] = "&$d[1])
 	For $i = 0 to UBound($deposits,1) - 1
 		$deposits[$i][1] = $deposits[$i][1] + $d[0] 
 		$deposits[$i][2] = $deposits[$i][2] + $d[1] 
@@ -155,6 +161,9 @@ Func TransBase()
 	$clientCenter[0] = $clientPos[0] + Round($clientPos[2] / 2)
 	$clientCenter[1] = $clientPos[1] + Round($clientPos[3] / 2)
 	Local $d[2] = [$clientCenter[0] - $cc_b[0], $clientCenter[1] - $cc_b[1]]
+;~ 	_FileWriteLog($logpath, "$clientPos[3] = "&$clientPos[3])
+;~ 	_FileWriteLog($logpath, "$d[0] = "&$d[0])
+;~ 	_FileWriteLog($logpath, "$d[1] = "&$d[1])
 	For $i = 0 to UBound($base_xy,1) - 1
 		$base_xy[$i][1] = $base_xy[$i][1] + $d[0] 
 		$base_xy[$i][2] = $base_xy[$i][2] + $d[1] 

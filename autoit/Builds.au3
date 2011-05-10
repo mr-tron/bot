@@ -22,10 +22,12 @@ Func ClickB($bname, $allscr = false, $scroll = true)
 	EndIf
 EndFunc
 
-Func ClickB0($bname, $cqty = 1); кликаем кнопку с указанным наименованием cqty раз
+Func ClickB0($bname, $cqty = 1, $dx = 0, $dy = 0); кликаем кнопку с указанным наименованием cqty раз
 	Local $p = _ArraySearch($base_xy, $bname)
 	if $p >= 0 Then 
-		if $cqty > 0 then	MouseClick("left", $base_xy[$p][1], $base_xy[$p][2], $cqty)
+;~ 	_FileWriteLog($logpath, "$base_xy[$p][1] + $dx = "&($base_xy[$p][1] + $dx))
+;~ 	_FileWriteLog($logpath, "$base_xy[$p][2] + $dy = "&($base_xy[$p][2] + $dy))
+		if $cqty > 0 then	MouseClick("left", $base_xy[$p][1] + $dx, $base_xy[$p][2] + $dy, $cqty)
 	EndIf
 EndFunc
 	
@@ -87,6 +89,12 @@ Func Build($buildtype, $times = 3)
 	Return $builded
 EndFunc
 
+Func CloseStar()
+	if IsStarOpened() Then
+		MouseMoveToStar()
+		MouseClick("left")
+	EndIf
+EndFunc
 ;~ Пробафать все здания указанного типа указанной бафалкой
 Func BuffAll($buildtype, $bufftype = 12, $qty = 100)
 	Local $p = FindBmp($buildtype)
@@ -95,13 +103,19 @@ Func BuffAll($buildtype, $bufftype = 12, $qty = 100)
 		ActivateStarTab(3)     ; активируем вкладку бафов
 		If Not SelectSlot($bufftype) Then
 			If $verbose Then Err('Не найден баф') 
+			CloseStar()
 			Return
 		EndIf
 		ClickP($p[0], $p[1], false)
+		Sleep(300)
+		ClickB("Отменить", true, false)
+		Sleep(300)
+		MouseMove($clientPos[0] + Round($clientPos[2] / 2), $clientPos[1] + 100)
 		Sleep(1000)
 		$p = FindBmp($buildtype)
 		$cnt = $cnt + 1
 	WEnd
+	CloseStar()	
 EndFunc
 
 Func ScrollNext()
@@ -152,7 +166,7 @@ Func StartGame()
 		Run($runpath) ; стартуем браузер
 	Else
 		ActivateClient()  ; Да. Такое тело...
-		Return
+		Return True
 	Endif
 	;Ждем загрузки главной страницы
 	Local $wcnt = 0
@@ -162,7 +176,7 @@ Func StartGame()
 		$wcnt = $wcnt + 1
 		if $wcnt > 60*5 then 
 ;~ 			Если не дождались загрузки, выходим
-			Return
+			Return False
 		EndIf
 	WEnd
 	Sleep(3000)
@@ -196,7 +210,7 @@ Func StartGame()
 		$wcnt = $wcnt + 1
 		if $wcnt > 60*5 then 
 ;~ 			Если не дождались загрузки, выходим
-			Return
+			Return False
 		EndIf
 	WEnd
 	MouseMove($clientPos[0] + 30 ,$clientPos[1] + 30)
@@ -215,12 +229,17 @@ Func Search($resname, $times)
 	if $resname = "Сокровища" then $searcher = 16 ; разведчик
 	While ($times == '*') Or ($count < $times )
 		ActivateStarTab(2)     ; активируем вкладку специалистов
-		If Not SelectSlot($searcher) Then
+		If Not SelectSlot($searcher, false) Then
 			If $verbose Then Err('Не найдено свободных искателей') 
+			CloseStar()	
 			Return
 		EndIf
 		Sleep(400)
-		ClickB('Искать'&$resname)
+		if $searcher = 16 then
+			ClickB0('Искать16')
+		else
+			ClickB('Искать'&$resname)
+		endif
 		Sleep(400)
 		if $searcher = 17 then
 			ClickB("РесурсОк")
@@ -230,6 +249,7 @@ Func Search($resname, $times)
 		Sleep(200)
 		$count = $count + 1 
 	WEnd
+	CloseStar()	
 EndFunc
 
 if $autologin Then
@@ -237,3 +257,6 @@ if $autologin Then
 ElseIf $autoactivate Then
 	ActivateClient()
 EndIf
+
+#Include <trade.au3>
+#Include <messages.au3>

@@ -32,6 +32,10 @@
 ;                                      ИСТОРИЯ ВЕРСИЙ
 ; -------------------------------------------------------------------------------------------
 ;
+; 0.2.7.1 (2011.05.11)
+;   - Добавлены функции торговли TradeHandle, TradeFriend, TradeGilde
+;   - Добавлен хеш железных мечей для дропа
+;   - Добавлена функция AutoAccept - смотрит в сообщения и принимает/отклоняет предложения торговли и подарки
 ; 0.2.7 (2011.05.05)
 ;   - Добавлен автологин
 ;   - Добавлены функции Build, BuffAll, Search, CreateProviant
@@ -219,14 +223,19 @@ Func ActivateClient()
 	; Ищем положение центра звезды по битмапу
 	$starPos = BitmapSearch($starBitmap, $clientPos[0], $clientPos[1] + $clientPos[3] - 200, $clientPos[0] + $clientPos[2], $clientPos[1] + $clientPos[3])
 	If $starPos = 0 Then
-		Err("Не удалось получить положение звезды." & @CRLF & "Убедитесь, что вкладка браузера с игрой активна и в игре не открыты модальные окна (например, окно сообщений)")
-		Exit
+		if $Verbose then 
+			Err("Не удалось получить положение звезды." & @CRLF & "Убедитесь, что вкладка браузера с игрой активна и в игре не открыты модальные окна (например, окно сообщений)")
+			Exit
+		Endif
+		Return False
 	EndIf
 	
 	GotoZeroPt()
 	; Преобразовываем координаты $deposits и $base_xy
 	TransDeps()
 	TransBase()
+;~ 	if $logpath <> '' then 	_FileWriteLog($logpath, "Клиент активизирован")
+	Return True;
 EndFunc
 
 ; Спрашивает у пользователя количество кормёжек
@@ -473,27 +482,33 @@ Func IsSlotOfType($slot, ByRef $type)
 EndFunc
 
 ; Ищет во всём меню первый слот с типом $type, начиная со слота $start
-Func FindSlotOfType(ByRef $type)
+Func FindSlotOfType(ByRef $type, $scroll = true)
 	OpenStar()
-	for $page = 0 to $scrollpages
-		if $page > 0 then
-			MouseClick("left", $sbPos[0], $sbPos[1])    ; Пролистываем
-			Sleep(100)
-		EndIf
+	if $scroll then
+		for $page = 0 to $scrollpages
+			if $page > 0 then
+				MouseClick("left", $sbPos[0], $sbPos[1])    ; Пролистываем
+				Sleep(100)
+			EndIf
+			For $slot = 1 To 18
+				If IsSlotOfType($slot, $type) Then Return $slot
+			Next
+		Next
+	Else
 		For $slot = 1 To 18
 			If IsSlotOfType($slot, $type) Then Return $slot
 		Next
-	Next
+	Endif
 	Return 0
 EndFunc
 
-Func SelectSlot(ByRef $slotTypes)
+Func SelectSlot(ByRef $slotTypes, $scroll = true)
 	
 	Local $slot
 	; Ищем первый подходящий ресурс в звезде.
 	; Загвоздка в том, что найденный ресурс может сдвинуться в списке пока мы к нему мышкой ползли...
 	While 1
-		$slot = FindSlotOfType($slotTypes)       ; ищем слот
+		$slot = FindSlotOfType($slotTypes, $scroll)       ; ищем слот
 		If $slot = 0 Then Return False            ; если не нашли - кормить нечем, выходим
 		MouseMoveToSlot($slot)                    ; иначе, перемешаем курсор на найденный слот ресурса
 		If IsSlotOfType($slot, $slotTypes) Then  ; если пока курсор двигался этот слот не пропал, то
@@ -533,7 +548,7 @@ Func GetSlotTypeForTaskTarget($taskName, $target)
 			Local $suxx[3] = [12, 13, 14, 15]
 			Return $suxx
 		Case "Drop"
-			Local $suxx[9] = [4, 5, 6, 7, 8, 9, 10, 11, 18]
+			Local $suxx[9] = [4, 5, 6, 7, 8, 9, 10, 11, 18, 19]
 			Return $suxx
 		Case Else
 			Return False
