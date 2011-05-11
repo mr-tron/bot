@@ -104,10 +104,10 @@ Global $deposits[75][5] = [ _
 [4, 1495, 665, 0, 'Железная руда'] _
 ]
 
-Global $base_xy[40][3] = [ _ ; базовые координаты элементов игры
-['Рынок', 124, 841], _
-['Чат', 18, 841], _
-['Предложение на рынок', 254, 794], _
+Global $base_xy[40][4] = [ _ ; базовые координаты элементов игры
+['Рынок', 124, 841, 2], _
+['Чат', 18, 841, 2], _
+['Предложение на рынок', 254, 794, 2], _
 ['Первый итем', 670, 460], _
 ['Товар=1', 718, 692], _
 ['Товар=176', 846, 692], _
@@ -119,13 +119,13 @@ Global $base_xy[40][3] = [ _ ; базовые координаты элемен�
 ['Закладка1', 679, 619], _
 ['Закладка2', 789, 619], _
 ['Закладка3', 902, 619], _
-['Сообщения', 1055, 836], _
+['Сообщения', 1055, 836, 3], _
 ['Сообщение 1', 696, 388], _
 ['Удалить сообщение 1', 1105, 391], _
 ['Принять предложение', 807, 686], _
 ['Отклонить предложение', 880, 690], _
-['Первый друг', 565, 917], _
-['Торовать с другом', 565 + 632 - 565, 917 + 885 - 917], _
+['Первый друг', 565, 917, 1], _
+['Торовать с другом', 565 + 632 - 565, 917 + 885 - 917, 1], _
 ['Ок', 960, 670], _
 ['Принять подарок', 864, 623], _
 ['Искать16', 811, 556], _
@@ -141,17 +141,18 @@ Global $base_xy[40][3] = [ _ ; базовые координаты элемен�
 ['Корм для животных', 798, 624], _
 ['Уха', 750, 483], _           
 ['Close', 1654, 9], _           
-['Друзья', 1193, 894], _           
-['Гильдия', 1194, 957] _           
+['Друзья', 1193, 894, 1], _           
+['Гильдия', 1194, 957, 1] _           
 ]
-
+Global $deps_transformed = false;
+Global $base_transformed = false;
 
 Func TransDeps()
+	if $deps_transformed then return
+	$deps_transformed = true;
 	$clientCenter[0] = $clientPos[0] + Round($clientPos[2] / 2)
 	$clientCenter[1] = $clientPos[1] + Round($clientPos[3] / 2)
 	Local $d[2] = [$clientCenter[0] - $cc_b[0], $clientCenter[1] - $cc_b[1]]
-;~ 	_FileWriteLog($logpath, "$d[0] = "&$d[0])
-;~ 	_FileWriteLog($logpath, "$d[1] = "&$d[1])
 	For $i = 0 to UBound($deposits,1) - 1
 		$deposits[$i][1] = $deposits[$i][1] + $d[0] 
 		$deposits[$i][2] = $deposits[$i][2] + $d[1] 
@@ -159,16 +160,25 @@ Func TransDeps()
 EndFunc
 
 Func TransBase()
+	if $base_transformed then return
+	$base_transformed = true;
 	$clientCenter[0] = $clientPos[0] + Round($clientPos[2] / 2)
 	$clientCenter[1] = $clientPos[1] + Round($clientPos[3] / 2)
-	Local $d[2] = [$clientCenter[0] - $cc_b[0], $clientCenter[1] - $cc_b[1]]
-;~ 	_FileWriteLog($logpath, "$clientPos[3] = "&$clientPos[3])
-;~ 	_FileWriteLog($logpath, "$d[0] = "&$d[0])
-;~ 	_FileWriteLog($logpath, "$d[1] = "&$d[1])
+	$fp = FindBmp('Предыдущий друг', true, false)
+;~ 	_ArrayDisplay($fp, "$fp")
+;~ 	_ArrayDisplay($clientPos, "$clientPos")
+;~ 	_ArrayDisplay($starPos, "$starPos")
+	Local $p0[2] = [$clientCenter[0] - $cc_b[0], $clientCenter[1] - $cc_b[1]]
+	Local $p1[2] = [$fp[0] - $fp_b[0], $fp[1] - $fp_b[1]]
+	Local $p2[2] = [$clientPos[0] - $cp_b[0], $clientPos[1] + $clientPos[3]  - $cp_b[1]]
+;~ 	_ArrayDisplay($p2, "$clientPos")
+	Local $p3[2] = [$starPos[0] - $sp_b[0], $starPos[1] - $sp_b[1]]
+	Local $d[4][2] = [[$p0[0], $p0[1]],[$p1[0], $p1[1]],[$p2[0], $p2[1]], [$p3[0], $p3[1]]]
 	For $i = 0 to UBound($base_xy,1) - 1
-		$base_xy[$i][1] = $base_xy[$i][1] + $d[0] 
-		$base_xy[$i][2] = $base_xy[$i][2] + $d[1] 
+		$base_xy[$i][1] = $base_xy[$i][1] + $d[$base_xy[$i][3]][0] 
+		$base_xy[$i][2] = $base_xy[$i][2] + $d[$base_xy[$i][3]][1] 
 	Next
+;~ 	_ArrayDisplay($base_xy, "$base_xy")
 EndFunc
 
 ; -------------------------------------------------------------------------------------------
