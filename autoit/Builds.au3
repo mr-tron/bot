@@ -14,7 +14,7 @@ EndFunc
 Func ClickB($bname, $allscr = false, $scroll = true)
 	Local $p = FindBmp($bname, $allscr, $scroll)
 	if $p = 0 then
-;~ 		_FileWriteLog($logpath, "Не найдены координаты для = "&$bname)
+;~ 		if $logpath <> '' then _FileWriteLog($logpath, "Не найдены координаты для = "&$bname)
 		Return False
 	Else
 		MouseClick("left", $p[0], $p[1])

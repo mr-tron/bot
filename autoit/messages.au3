@@ -2,7 +2,7 @@
 #Include <File.au3>
 
 func AutoAccept($autoablehen = true)
-	ClickB0("Сообщения")
+	ClickB("Сообщения", true, false)
 	Sleep(500)
 	Local $mi = 0; - номер рассматриваемого сообщения
 	Local $p = _ArraySearch($base_xy, 'Сообщение 1')
