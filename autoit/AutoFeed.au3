@@ -32,6 +32,10 @@
 ;                                      ИСТОРИЯ ВЕРСИЙ
 ; -------------------------------------------------------------------------------------------
 ;
+; 0.2.7.2 (2011.05.12)
+;   - добавлена функция DropSlot(Имя итема, количество кормежек)
+;	- добавлены хеши обычных и длинных луков
+;   - исправлен баг с кликом по иконке сообщений
 ; 0.2.7.1 (2011.05.11)
 ;   - Добавлены функции торговли TradeHandle, TradeFriend, TradeGilde
 ;   - Добавлен хеш железных мечей для дропа
@@ -488,7 +492,7 @@ Func FindSlotOfType(ByRef $type, $scroll = true)
 		for $page = 0 to $scrollpages
 			if $page > 0 then
 				MouseClick("left", $sbPos[0], $sbPos[1])    ; Пролистываем
-				Sleep(100)
+				Sleep(200)
 			EndIf
 			For $slot = 1 To 18
 				If IsSlotOfType($slot, $type) Then Return $slot
@@ -548,7 +552,7 @@ Func GetSlotTypeForTaskTarget($taskName, $target)
 			Local $suxx[3] = [12, 13, 14, 15]
 			Return $suxx
 		Case "Drop"
-			Local $suxx[9] = [4, 5, 6, 7, 8, 9, 10, 11, 18, 19]
+			Local $suxx[9] = [4, 5, 6, 7, 8, 9, 10, 11, 18, 19, 20, 21]
 			Return $suxx
 		Case Else
 			Return False
@@ -618,6 +622,31 @@ EndFunc
 
 Func Drop($count = '*')
 	Return PerformFeedingTasks('Drop', 0, $count)
+EndFunc
+
+Func DropSlot($sname, $cnt = 0)
+	Local $bid = -1
+	MouseMove($clientCenter[0], $clientPos[1] + 100)
+	Send('0')
+	MouseWheel("down", 10)  ; минимальный масштаб карты
+	Sleep(200)
+	$bid = _ArraySearch($deposits, 'townhall', 0, 0, 0, 0, 1, 4)
+	Local $slotid = _ArraySearch($slotHashes, $sname, 0, 0, 0, 0, 1, 1)
+	if $slotid = -1 Then
+		$slotid = 15 ; яйца
+	Endif
+	if $bid < 0 Then return
+	Local $qty = $cnt
+	Local $cntr = 0
+	if $cnt = 0 Then $qty = 1000
+	while $cntr < $qty 
+		$cntr = $cntr + 1 
+		ActivateStarTab(4)     ; активируем вкладку ресурсов в звезде
+		If Not SelectSlot($slotid) Then
+			Return                                           ; завершаем задание
+		EndIf
+		ClickP($deposits[$bid][1], $deposits[$bid][2], False)
+	Wend
 EndFunc
 
 Func Buff($targets)
