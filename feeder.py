@@ -403,7 +403,7 @@ def feed(targets, count = '?'):
 
 def settle(count = '?'):
 	# TODO only settlers
-	return _setl(0, count)
+	return _setl(0, count, slots['settler']['hash'])
 
 def drop(count = '*'):
 	# TODO exclude settlers
