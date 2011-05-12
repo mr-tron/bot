@@ -305,7 +305,6 @@ game = Game()
 menu = game.star.menu
 
 
-print 'client.center:', client.center
 kopilo = {}
 def gc(key): cc = (960, 631); mp = mouse.position; op = (mp[0] - cc[0], mp[1] - cc[1]); kopilo[key] = { 'pos' : op, 'res' : 'meat', 'type' : 'deposit' }
 
@@ -403,11 +402,12 @@ def feed(targets, count = '?'):
 
 def settle(count = '?'):
 	# TODO only settlers
-	return _setl(0, count, slots['settler']['hash'])
+	return _setl(0, count, [slots['settler']['hash']])
 
+drop_hashes = [slots[s]['hash'] for s in slots if slots[s]['type'] == 'res']
 def drop(count = '*'):
 	# TODO exclude settlers
-	return _setl(0, count)
+	return _setl(0, count, drop_hashes)
 
 
 #mouse.speed = 2
@@ -422,7 +422,6 @@ for i in range(20):
 	key.down('left').sleep(0.2).up('left')
 """
 #menu.open_tab(3).detect_slots().close()
-
 
 
 

@@ -35,6 +35,16 @@ slots = {
 		'title' : '+ Gold',
 		'type'  : 'res',
 	},
+	'iron-sword' : {
+		'hash'  : '18207052',
+		'title' : '+ Iron sword',
+		'type'  : 'res',
+	},
+	'bow' : {
+		'hash'  : 'CE1A5084',
+		'title' : '+ Bow',
+		'type'  : 'res',
+	},
 	'easter-egg' : {
 		'hash'  : 'B5F6B2E8',
 		'title' : '+ Easter egg',
@@ -48,7 +58,7 @@ slots = {
 	'settler' : {
 		'hash'  : '3B6D9377',
 		'title' : 'Settler',
-		'type'  : 'res',
+		'type'  : 'settler',
 	},
 }
 
@@ -107,6 +117,6 @@ for o, obj in objects.iteritems():
 	if obj['type'] == 'deposit':
 		obj['accepts'] = [ slots[obj['res'] + '-food']['hash'] ]
 	elif obj['type'] == 'city':
-		obj['accepts'] = [slots[s]['hash'] for s in slots if slots[s]['type'] == 'res']
+		obj['accepts'] = [slots[s]['hash'] for s in slots if slots[s]['type'] == 'res' or slots[s]['type'] == 'settler']
 
 
