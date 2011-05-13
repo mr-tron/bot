@@ -45,6 +45,16 @@ slots = {
 		'title' : '+ Bow',
 		'type'  : 'res',
 	},
+	'coal' : {
+		'hash'  : 'CD5F7703',
+		'title' : '+ Coal',
+		'type'  : 'res',
+	},
+	'tools' : {
+		'hash'  : '5DEE46E8',
+		'title' : '+ Tools',
+		'type'  : 'res',
+	},
 	'easter-egg' : {
 		'hash'  : 'B5F6B2E8',
 		'title' : '+ Easter egg',
@@ -55,10 +65,20 @@ slots = {
 		'title' : "Irma's basket",
 		'type'  : 'boost',
 	},
+	'boost30m' : {
+		'hash'  : 'AAA378D5',
+		'title' : "Fish plate",
+		'type'  : 'boost',
+	},
 	'settler' : {
 		'hash'  : '3B6D9377',
 		'title' : 'Settler',
 		'type'  : 'settler',
+	},
+	'empty' : {
+		'hash'  : 'ABBA41E2',
+		'title' : 'Empty slot',
+		'type'  : 'null',
 	},
 }
 
