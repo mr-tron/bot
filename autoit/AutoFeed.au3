@@ -32,6 +32,9 @@
 ;                                      ИСТОРИЯ ВЕРСИЙ
 ; -------------------------------------------------------------------------------------------
 ;
+; 0.2.7.4 (2011.05.19)
+;   - исправлены мелкие баги.
+;   - запуск файла PositionCapture позволяет получать массивы цветов пикселей для последующего использования
 ; 0.2.7.3 (2011.05.12)
 ;   - доработано использование бота в разных разрешениях экрана
 ; 0.2.7.2 (2011.05.12)
@@ -162,6 +165,8 @@ If Not IsDeclared("scrollpages") Then Global Const $scrollpages = 0
 ; -------------------------------------------------------------------------------------------
 
 HotKeySet("{ESCAPE}", "Terminate")
+HotKeySet("{PAUSE}", "TogglePause")
+
 
 ; -------------------------------------------------------------------------------------------
 ;  ОБЩЕЕ
@@ -193,8 +198,11 @@ Func ActivateClient()
 	
 	; Если клиент не найден - делать нечего, выходим
 	If $clientWindow = 0 Then
-		Err("Не удалось найти окно клиента игры")
-		Exit
+		if $verbose Then
+			Err("Не удалось найти окно клиента игры")
+			Exit
+		EndIf
+		Return False
 	EndIf
 	
 	; Ищем окно браузера - получаем всех родителей клиента, забираем самого старшего с соответствующим классом браузера
@@ -357,6 +365,16 @@ Func Terminate()
     Exit
 EndFunc
 
+Func TogglePause()
+    $Paused = NOT $Paused
+    While $Paused
+        sleep(1000)
+        ToolTip('Script is "Paused"',0,0)
+    WEnd
+    ToolTip("")
+EndFunc
+
+
 ; -------------------------------------------------------------------------------------------
 ;  ЗВЕЗДА
 ; -------------------------------------------------------------------------------------------
@@ -391,7 +409,7 @@ Func IsStarOpened()
 EndFunc
 
 ; Ждёт открытия меню звезды в отведённое время $timeout. Возврвщает открылось окно или нет
-Func WaitStarOpen($timeout = $menuTimeout, $verbose = True)
+Func WaitStarOpen($timeout = $menuTimeout)
 	
 	Local $tic = TimerInit()                   ; включаем таймер
 	While Not IsStarOpened()                   ; всё время проверяем - не открылось ли
@@ -424,7 +442,13 @@ Func OpenStar()
 	If IsStarOpened() Then Return
 	MouseMoveToStar()
 	MouseClick("left")
-	If Not WaitStarOpen() Then Exit
+	If Not WaitStarOpen() Then 
+		if $verbose Then
+			Exit
+		Else
+			Return false
+		EndIf
+	EndIf
 	
 EndFunc
 
@@ -554,7 +578,7 @@ Func GetSlotTypeForTaskTarget($taskName, $target)
 			Local $suxx[3] = [12, 13, 14, 15]
 			Return $suxx
 		Case "Drop"
-			Local $suxx[9] = [4, 5, 6, 7, 8, 9, 10, 11, 18, 19, 20, 21]
+			Local $suxx[12] = [4, 5, 6, 7, 8, 9, 10, 11, 18, 19, 20, 21]
 			Return $suxx
 		Case Else
 			Return False

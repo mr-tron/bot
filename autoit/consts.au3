@@ -6,7 +6,8 @@
 ; экранные координаты центра клиента для базового разрешения
 Global const $cc_b[2] = [840, 517]
 ; экранные кнопки прокрутки друзей клиента для базового разрешения
-Global const $fp_b[2] = [433, 900]
+Global const $fp_b[2] = [453, 888]
+;~ Global const $fp_b[2] = [433, 900]
 ; координаты левого нижнего угла клиента для базового разрешения
 Global const $cp_b[2] = [0, 972]
 ; координаты звезды для базового разрешения
@@ -58,7 +59,7 @@ Global Const $Eisenmine[3][3] = [[0xB79FA7, 0x57373F, 0x4F3F2F], [0x77572F, 0x3F
 Global Const $Goldschmelze[3][3] = [[0xA76F07, 0xFFFF07, 0x6E4C09], [0xCFC707, 0xFFFF77, 0x9F5F17], [0xFFE7B7, 0x71512B, 0x6E4D26]]
 Global Const $Munzpragrerei[5][5] = [[0xE7C797, 0xBF9767, 0x8F5F2F, 0x57473F, 0x171717], [0xFFFFCF, 0x775F5F, 0x4F3F27, 0x373737, 0x2F271F], [0x4F4F17, 0xB2967E, 0xA7621F, 0x3E2E2E, 0x534443], [0x2F371F, 0x2F2727, 0x2F2F0F, 0x473727, 0x3F3727], [0x4F3F37, 0x473F37, 0x4F4F1F, 0x473727, 0x271F17]]
 Global Const $BCancel[5][5] = [[0xAA9C7D, 0xAA9C7D, 0xAFA183, 0xB2A589, 0xB6AA8E], [0x978B6F, 0x978B6F, 0x9B8F74, 0x9E937A, 0xA2987F], [0x010101, 0x010101, 0x010101, 0x010101, 0x575244], [0x776D57, 0x776D57, 0x7A705B, 0x7C7360, 0x292620], [0xAA9C7D, 0xAA9C7D, 0xAFA183, 0xB2A589, 0x1B1A15]]
-Global Const $BPrevFriend[5][5] =  [[0x958668, 0x8C7D5F, 0x897A5C, 0x897A5C, 0x867759], [0x78694B, 0x8E7F61, 0x8C7D5F, 0x8A7B5D, 0x87785A], [0x948567, 0x908163, 0x8F8062, 0x8C7D5F, 0x88795B], [0x8A7B5D, 0x8C7D5F, 0x8D7E60, 0x8A7B5D, 0x857658], [0x695A3C, 0x68593B, 0x635436, 0x615234, 0x5C4D2F]]
+Global Const $BPrevFriend[5][5] =  [[0xA99E8C, 0x9E8E76, 0x887557, 0x7D6848, 0x7B6645], [0xA4957F, 0x7E6949, 0x978464, 0xBDAE90, 0xCBBC9F], [0x8B785B, 0x917D5D, 0xB7A88A, 0xAB9C7F, 0xA39477], [0x7F6B4B, 0xC6B698, 0xAFA083, 0xBBAC8F, 0xBBAC8F], [0x7B6645, 0xD4C5A7, 0xA49578, 0xBCAD90, 0xBBAC8F]]
 
 ; чтобы не запоминать наименования переменных, сводим их в массив с нормальными русскими названиями
 ;~ последние 4 параметра указываются относительно $clientCenter: искать в пределах $clientCenter - x1, $clientCenter - y1 до $clientCenter + x2, $clientCenter + y2
@@ -156,7 +157,7 @@ Global Const $AllHashes[20][2] = [ _
 ]
 
 ; Ширина и высота итема в окне торговли
-Global const $isize[2] = [80,41]
+Global const $isize[2] = [80,40]
 
 Global const $build_b[4][4] = [ _
 [2, 'Медная руда', 'Медная руда1', 'Медная руда'], _		; медь

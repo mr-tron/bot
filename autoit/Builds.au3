@@ -74,7 +74,7 @@ Func BuildOfType($buildtype)
 		if SelectBuild($buildid) then
 			Sleep(200)
 			ClickP($p[0], $p[1], false)            ; кликаем по координате и строим здание
-			Sleep(200)
+			Sleep(1500)
 			Return True;
 		Endif
 	Endif
@@ -184,7 +184,7 @@ Func StartGame()
 	$wcnt = 0
 	Local $p = 0
 	while $p = 0 
-		Sleep(1000)
+		Sleep(2000)
 		MouseMove($clientPos[0] + 10 ,$clientPos[1] + 10)
 		; если нашли кнопку авторизации жмем ее и авторизуемся
 		if ClickB("Логин", true, false) then
@@ -215,7 +215,7 @@ Func StartGame()
 	WEnd
 	MouseMove($clientPos[0] + 30 ,$clientPos[1] + 30)
 	while not ClickB('ОкСтарт', true, false) 
-		Sleep(1000)
+		Sleep(2000)
 		; отводим мышку, чтобы гарантированно не загараживала битмапы
 		MouseMove($clientPos[0] + 10 ,$clientPos[1] + 10)
 	Wend
@@ -229,6 +229,7 @@ Func Search($resname, $times)
 	if $resname = "Сокровища" then $searcher = 16 ; разведчик
 	While ($times == '*') Or ($count < $times )
 		ActivateStarTab(2)     ; активируем вкладку специалистов
+		Sleep(1000)
 		If Not SelectSlot($searcher, false) Then
 			If $verbose Then Err('Не найдено свободных искателей') 
 			CloseStar()	

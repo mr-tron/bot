@@ -1,17 +1,11 @@
 
-; Определение универсальных координат объектов
-; Коротко. Надо получить координаты, например, лесопилок. Запускаем скрипт. МАКСИМАЛЬНО zoom out'им. Идём в ближайший к лесопилкам сектор (цифровыми клавишами).
-; Зажимаем shift и кликаем по лесопилке - получаем в консоле автоита координаты лесопилки. Так по каждой нужной точке.
-; Для выхода - ESCAPE
-; Замечания:
-; Если вы сдвинули карту с помощью клавиш или мышью, то координаты "универсальными" уже не будут
-; Скрипт запоминает в какой сектор вы переходите и выдаёт его в консоли.
-; Писал под себя, чтобы быстро заполнить массив $deposits. см. там.
+; РћРїСЂРµРґРµР»РµРЅРёРµ РЅР°Р±РѕСЂР° РїРёРєСЃРµР»РµР№ РґР»СЏ РїРѕСЃР»РµРґСѓСЋС‰РµРіРѕ РїРѕРёСЃРєР° СЃ РїРѕРјРѕС‰СЊСЋ С„СѓРЅРєС†РёРё FindBMP
+; РЎС‚Р°РІРёРј РјС‹С€СЊ РЅР° РЅСѓР¶РЅСѓСЋ РїРѕР·РёС†РёСЋ, Р·Р°Р¶РёРјР°РµРј Shift, СѓРІРѕРґРёРј РјС‹С€СЊ СЃ РїРѕР·РёС†РёРё РїРѕРґР°Р»СЊС€Рµ - С‡С‚РѕР±С‹ РєСѓСЂСЃРѕСЂ РЅРµ Р·Р°РіРѕСЂР°Р¶РёРІР°Р» Р±РёС‚РјР°Рї. РћС‚РїСѓСЃРєР°РµРј Shift, РїРѕР»СѓС‡Р°РµРј РјР°СЃСЃРёРІ С†РІРµС‚РѕРІ РїРёРєСЃРµР»РµР№ Рё РєРѕРѕСЂРґРёРЅР°С‚Сѓ
+; Р”Р»СЏ РІС‹С…РѕРґР° - ESCAPE
 
 #include <WindowsConstants.au3>
 #include <StructureConstants.au3>
-#Include <AutoFeed.au3>
-
+#Include <WinAPI.au3>
 
 HotKeySet("{ESCAPE}", "Terminate")
 OnAutoItExitRegister("Cleanup")
@@ -20,39 +14,13 @@ Global Const $tagMSLLHOOKSTRUCT = 'int x;int y;DWORD mouseData;DWORD flags;DWORD
 
 Global $hModule = _WinAPI_GetModuleHandle(0)
 
-Global $hMouseProc = DllCallbackRegister("LowLevelMouseProc", "long", "int;wparam;lparam")
-Global $pMouseProc = DllCallbackGetPtr($hMouseProc)
-Global $hMouseHook = _WinAPI_SetWindowsHookEx($WH_MOUSE_LL, $pMouseProc, $hModule)
-
 Global $hKeyboardProc = DllCallbackRegister("LowLevelKeyboardProc", "long", "int;wparam;lparam")
 Global $pKeyboardProc = DllCallbackGetPtr($hKeyboardProc)
 Global $hKeyboardHook = _WinAPI_SetWindowsHookEx($WH_KEYBOARD_LL, $pKeyboardProc, $hModule)
-
-Global $sectorCenterPos[2] = [$clientPos[0] + Round($clientPos[2]/2), $clientPos[1] + _Iif($clientPos[3] < 800, 400, Round($clientPos[3]/2))]
-Global $enable = False
-Global $sector = 0
+Global $pos[2]
 
 While 1
 WEnd
-
-; http://msdn.microsoft.com/en-us/library/ms644986(v=vs.85).aspx
-Func LowLevelMouseProc($nCode, $wParam, $lParam)
-	
-	If $nCode >= 0 And $wParam = $WM_LBUTTONUP Then
-		
-		If $enable Then
-			; http://msdn.microsoft.com/en-us/library/ms644970(v=vs.85).aspx
-			Local $MSLLHOOKSTRUCT = DllStructCreate($tagMSLLHOOKSTRUCT, $lParam)
-			Local $x = DllStructGetData($MSLLHOOKSTRUCT, 1)
-			Local $y = DllStructGetData($MSLLHOOKSTRUCT, 2)
-			ConsoleWrite("AddTarget('', " & StringFormat('%4d', $x - $sectorCenterPos[0]) & ', ' & StringFormat('%4d', $y - $sectorCenterPos[1]) & ', ' & $sector & ')' & @CRLF)
-		EndIf
-		
-	EndIf
-
-	Return _WinAPI_CallNextHookEx($hMouseHook, $nCode, $wParam, $lParam)
-	
-EndFunc
 
 ; http://msdn.microsoft.com/en-us/library/ms644985(VS.85).aspx
 Func LowLevelKeyboardProc($nCode, $wParam, $lParam)
@@ -66,29 +34,37 @@ Func LowLevelKeyboardProc($nCode, $wParam, $lParam)
 		If $vkCode = 0x10 Or $vkCode = 0xA0 or $vkCode = 0xA1 Then ; Shifts
 			Switch $wParam
 			Case $WM_KEYDOWN
-				$enable = True
+				$pos = MouseGetPos()
 			Case $WM_KEYUP
-				$enable = False
+				Local $radius = 2
+				Local $c, $sText = "Global const $VarName["&($radius*2 + 1)&"]["&($radius*2 + 1)&"] = [["
+				for $i = -$radius to $radius
+					for $j = -$radius to $radius
+						$c = PixelGetColor($pos[0]+$i, $pos[1] + $j)
+						if $j <> -$radius then $sText = $sText&", "
+						$sText = $sText&"0x"&Hex($c, 6)
+					Next
+					if $i = $radius then 
+						$sText = $sText&"]" 
+					else 
+						$sText = $sText&"], ["
+					EndIf
+				Next
+				$sText = $sText&"]"
+				ConsoleWrite(";~ point = ("&$pos[0]&", "&$pos[1]&")"& @CRLF)
+				ConsoleWrite($sText& @CRLF)
 			EndSwitch
-		ElseIf $wParam = $WM_KEYUP And ($vkCode >= 0x30) And ($vkCode <= 0x39) Then  ; 0 - 9
-			$sector = $vkCode - 0x30
-		ElseIf $wParam = $WM_KEYUP And ($vkCode >= 0x60) And ($vkCode <= 0x69) Then  ; NumPad 0 - NumPad 9
-			$sector = $vkCode - 0x60
 		EndIf
 		
 	EndIf
 
-	Return _WinAPI_CallNextHookEx($hMouseHook, $nCode, $wParam, $lParam)
-	
 EndFunc
 
 Func Cleanup()
-	_WinAPI_UnhookWindowsHookEx($hMouseHook)
 	_WinAPI_UnhookWindowsHookEx($hKeyboardHook)
-	DllCallbackFree($hMouseProc)
 	DllCallbackFree($hKeyboardProc)
 EndFunc
 
-;~ Func Terminate()
-;~     Exit 0
-;~ EndFunc
+Func Terminate()
+    Exit 0
+EndFunc
