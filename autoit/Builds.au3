@@ -89,6 +89,22 @@ Func Build($buildtype, $times = 3)
 	Return $builded
 EndFunc
 
+Func BuildAll($buildtype, $timer = 0)
+	while Build($buildtype, 1)
+		Sleep(2000)
+		Build($buildtype, 1)
+		if $timer > 0 then
+			Sleep($timer)
+		elseif $buildtype = "Поле" Then
+			Sleep((1*60+10)*1000)
+		elseif $buildtype = "Родник" Then
+			Sleep((1*60+40)*1000)
+		else
+			Sleep(5*60*1000)
+		endif
+	wend
+EndFunc
+
 Func CloseStar()
 	if IsStarOpened() Then
 		MouseMoveToStar()
