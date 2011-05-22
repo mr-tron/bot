@@ -81,6 +81,7 @@ Func BuildOfType($buildtype)
 	Return False;
 EndFunc
 
+
 Func Build($buildtype, $times = 3)
 	For $t = 1 to $times
 		$builded = BuildOfType($buildtype)
@@ -89,19 +90,46 @@ Func Build($buildtype, $times = 3)
 	Return $builded
 EndFunc
 
-Func BuildAll($buildtype, $timer = 0)
+Func ParseTime($value)
+	$res = StringRegExp($value, '[0-9]{1,4}', 3)
+	if not IsArray($res) Then
+		if $verbose Then
+			Err("Неверно задан формат времени: "&$value);
+		EndIf
+		Return 5*60*1000;
+	EndIf
+	if UBound($res) = 1 Then
+		;Указаны только минуты
+		Return 60*int($res[0])*1000
+	elseif UBound($res) = 2 Then
+		; указаны минуты и секунды
+		Return int($res[0])*60*1000 + int($res[1])*1000
+	elseif UBound($res) = 3 Then
+		; указаны минуты, секунды и милисекунды (хз зачем)
+		Return int($res[0])*60*1000 + int($res[1])*1000 + int($res[2])
+	Else
+		; указана неведомая хрень
+		if $verbose Then
+			Err("Неверно задан формат времени: "&$value);
+		EndIf
+		Return 5*60*1000;
+	EndIf
+EndFunc
+
+Func BuildAll($buildtype, $timer = '')
+	Local $waittime = 5*60*1000
+	if $timer <> '' Then
+		$waittime = ParseTime($timer)
+	elseif $buildtype = "Поле" Then
+		$waittime = ((1*60+10)*1000)
+	elseif $buildtype = "Родник" Then
+		$waittime = ((1*60+40)*1000)
+	EndIf
+	ConsoleWrite("$waittime = "&$waittime)
 	while Build($buildtype, 1)
 		Sleep(2000)
 		Build($buildtype, 1)
-		if $timer > 0 then
-			Sleep($timer)
-		elseif $buildtype = "Поле" Then
-			Sleep((1*60+10)*1000)
-		elseif $buildtype = "Родник" Then
-			Sleep((1*60+40)*1000)
-		else
-			Sleep(5*60*1000)
-		endif
+		Sleep($waittime)
 	wend
 EndFunc
 
