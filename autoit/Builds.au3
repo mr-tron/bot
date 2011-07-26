@@ -40,11 +40,11 @@ EndFunc
 Func CreateProviant($resname = 'Уха', $qty = 10)
 	Sleep(200)
 	if ClickB("Провиант3") then; выбираем провиантлагерь
-		$bookmark = 1;
+		$bookmark = 2;
 		if ($resname = 'Корм для рыб') or ($resname = 'Корм для животных') Then
-			$bookmark = 2
-		elseif ($resname = 'Инструменты') or ($resname = 'Золото') or ($resname = 'Поселенцы') Then
 			$bookmark = 3
+		elseif ($resname = 'Инструменты') or ($resname = 'Золото') or ($resname = 'Поселенцы') Then
+			$bookmark = 1
 		Endif
 		ClickB0("ЗакладкаП"&$bookmark)
 		Sleep(200)
