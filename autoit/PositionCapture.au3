@@ -18,6 +18,7 @@ Global $hKeyboardProc = DllCallbackRegister("LowLevelKeyboardProc", "long", "int
 Global $pKeyboardProc = DllCallbackGetPtr($hKeyboardProc)
 Global $hKeyboardHook = _WinAPI_SetWindowsHookEx($WH_KEYBOARD_LL, $pKeyboardProc, $hModule)
 Global $pos[2]
+Global $set = false
 
 While 1
 WEnd
@@ -34,7 +35,11 @@ Func LowLevelKeyboardProc($nCode, $wParam, $lParam)
 		If $vkCode = 0x10 Or $vkCode = 0xA0 or $vkCode = 0xA1 Then ; Shifts
 			Switch $wParam
 			Case $WM_KEYDOWN
-				$pos = MouseGetPos()
+				if not $set then 
+					$pos = MouseGetPos()
+					ConsoleWrite("pos = "&$pos[0]&" "&$pos[1]& @CRLF)
+					$set = true
+				Endif
 			Case $WM_KEYUP
 				Local $radius = 2
 				Local $c, $sText = "Global const $VarName["&($radius*2 + 1)&"]["&($radius*2 + 1)&"] = [["
@@ -53,6 +58,7 @@ Func LowLevelKeyboardProc($nCode, $wParam, $lParam)
 				$sText = $sText&"]"
 				ConsoleWrite(";~ point = ("&$pos[0]&", "&$pos[1]&")"& @CRLF)
 				ConsoleWrite($sText& @CRLF)
+				$set = false
 			EndSwitch
 		EndIf
 		

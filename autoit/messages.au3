@@ -37,6 +37,7 @@ func AutoAccept($autoablehen = true)
 				ClickB0("Отклонить предложение")
 			EndIf
 		elseif $mType = 'Подарок' Then
+			$mi = $mi + 1
 			Sleep(200)
 			ClickB0("Сообщение 1", 1, 0, $mi*25)
 			Sleep(500)

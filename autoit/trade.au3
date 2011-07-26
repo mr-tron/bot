@@ -8,14 +8,13 @@
 ;~ Торговать на рынке
 Func TradeHandle($myitem, $hisitem, $myqty, $hisqty)
 	Sleep(200)
-	ClickB0('Чат')
+	ClickB0('Чат', false, false)
 	if $myitem = "" then return
 	Sleep(200)
-	if ClickB("Рынок") then
-		Sleep(200)
-		if ClickB("Предложение на рынок") then
-			TradeStart($myitem, $hisitem, $myqty, $hisqty)
-		Endif
+	ClickB("Рынок", false, false)
+	Sleep(200)
+	if ClickB("Предложение на рынок", false, false) then
+		TradeStart($myitem, $hisitem, $myqty, $hisqty)
 	Endif
 EndFunc
 
@@ -65,14 +64,14 @@ Func TradeStart($myitem, $hisitem, $myqty, $hisqty)
 	MouseClick("left", $myp[0], $myp[1]) ; кликаем товар
 	Sleep(200)
 	Local $cur_qty = $myqty
-	if $cur_qty <> 200 then
+	if $cur_qty <> 400 then
 		Local $p = _ArraySearch($base_xy, "Товар=1")
 		Local $p0[2] = [$base_xy[$p][1],$base_xy[$p][2]]
-		$p = _ArraySearch($base_xy, "Товар=200")
+		$p = _ArraySearch($base_xy, "Товар=400")
 		Local $p2[2] = [$base_xy[$p][1],$base_xy[$p][2]]
 		MouseMove($p2[0], $p2[1])
 		MouseDown("left")
-		$p0[0] = $p0[0] + Round(($p2[0] - $p0[0])/200*($cur_qty))
+		$p0[0] = $p0[0] + Round(($p2[0] - $p0[0])/400*($cur_qty))
 		MouseMove($p0[0], $p0[1])
 		MouseUP("left")
 	Endif
@@ -86,14 +85,14 @@ Func TradeStart($myitem, $hisitem, $myqty, $hisqty)
 	MouseClick("left", $hisp[0], $hisp[1]) ; кликаем товар
 	Sleep(200)
 	Local $cur_qty = $hisqty
-	if $cur_qty <> 200 then
+	if $cur_qty <> 400 then
 		Local $p = _ArraySearch($base_xy, "Товар=1")
 		Local $p0[2] = [$base_xy[$p][1],$base_xy[$p][2]]
-		$p = _ArraySearch($base_xy, "Товар=200")
+		$p = _ArraySearch($base_xy, "Товар=400")
 		Local $p2[2] = [$base_xy[$p][1],$base_xy[$p][2]]
 		MouseMove($p2[0], $p2[1])
 		MouseDown("left")
-		$p0[0] = $p0[0] + Round(($p2[0] - $p0[0])/200*($cur_qty))
+		$p0[0] = $p0[0] + Round(($p2[0] - $p0[0])/400*($cur_qty))
 		MouseMove($p0[0], $p0[1])
 		MouseUP("left")
 	Endif

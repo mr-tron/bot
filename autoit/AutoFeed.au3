@@ -32,6 +32,11 @@
 ;                                      ИСТОРИЯ ВЕРСИЙ
 ; -------------------------------------------------------------------------------------------
 ;
+; 0.2.8 (2011.07.26)
+;   - добавлена возможность поиска сокровищ и приключений разных видов (Карта1, Карта2, Карта3).
+;   - добавлена возможность торговли товаром из 4-й вкладки.
+;   - алгоритм торговли изменен под максимальное количество товара 400 вместо 200.
+;   - добавлены хеши лута от приключений (Titanerz, Pferde, Würste)
 ; 0.2.7.5 (2011.05.22)
 ;   - добавлена функция восстановления засохших родников/полей, а также других зданий: BuildAll(Наименование здания)
 ; 0.2.7.4 (2011.05.19)
@@ -139,6 +144,8 @@
 #Include <Color.au3>
 #Include <WinAPI.au3>
 #Include <Misc.au3>
+#Include <Date.au3>
+#Include <Encoding.au3>
 
 ; for TextDisplay
 #include <GUIEdit.au3>
@@ -161,7 +168,9 @@ If Not IsDeclared("menuTimeout") Then Global Const $menuTimeout = 5000
 ; Сообщать об окончании очереди, недоступности слотов и т.д.
 If Not IsDeclared("verbose") Then Global Const $verbose = True
 If Not IsDeclared("scrollpages") Then Global Const $scrollpages = 0
-
+if Not IsDeclared("debug") Then Global Const $debug = false
+if Not IsDeclared("debugconsole") Then Global Const $debugconsole = false
+if Not IsDeclared("logpath") Then Global Const $logpath = ''
 ; -------------------------------------------------------------------------------------------
 ; Тело программы
 ; -------------------------------------------------------------------------------------------
@@ -204,6 +213,7 @@ Func ActivateClient()
 			Err("Не удалось найти окно клиента игры")
 			Exit
 		EndIf
+		AddLog("Не удалось найти окно клиента игры")
 		Return False
 	EndIf
 	
@@ -243,6 +253,7 @@ Func ActivateClient()
 			Err("Не удалось получить положение звезды." & @CRLF & "Убедитесь, что вкладка браузера с игрой активна и в игре не открыты модальные окна (например, окно сообщений)")
 			Exit
 		Endif
+		AddLog("Не удалось получить положение звезды." & @CRLF & "Убедитесь, что вкладка браузера с игрой активна и в игре не открыты модальные окна (например, окно сообщений)")
 		Return False
 	EndIf
 	
@@ -250,7 +261,6 @@ Func ActivateClient()
 	; Преобразовываем координаты $deposits и $base_xy
 	TransDeps()
 	TransBase()
-;~ 	if $logpath <> '' then 	_FileWriteLog($logpath, "Клиент активизирован")
 	Return True;
 EndFunc
 
@@ -364,6 +374,7 @@ Func MoveMouse($bx, $by, $dx = 0, $dy = 0, $scroll = false)
 EndFunc
 
 Func Terminate()
+	AddLog("Остановлено пользователем")
     Exit
 EndFunc
 
@@ -577,10 +588,15 @@ Func GetSlotTypeForTaskTarget($taskName, $target)
 		Case "Settle"
 			Return 3
 		Case "Buff"
-			Local $suxx[3] = [12, 13, 14, 15]
+			Local $suxx[4] = [12, 13, 14, 15]
 			Return $suxx
 		Case "Drop"
-			Local $suxx[12] = [4, 5, 6, 7, 8, 9, 10, 11, 18, 19, 20, 21]
+			Local $suxx[12] = [4, 5, 6, 7, 8, 9, 10, 11, 18, 19, 20, 21, 23, 24, 25]
+			Return $suxx
+		Case "Сокровища", "Сокровища1", "Сокровища2", "Сокровища3", "Сокровища4", "Карта1", "Карта2", "Карта3"
+			Return 16
+		Case "Камень", "Медная руда", "Мрамор", "Железная руда"
+			Local $suxx[2] = [17, 22]
 			Return $suxx
 		Case Else
 			Return False
@@ -980,4 +996,14 @@ Func TextDisplay($text = "", $title = "AutoFeed")
 		If GUIGetMsg() == $GUI_EVENT_CLOSE Then Exit
 	WEnd
 
+EndFunc
+
+Func AddLog($text)
+	if $debug Then
+		if $debugconsole Then
+			ConsoleWrite(""&_Now()&" : "&_Encoding_StringToUTF8($text)& @CRLF)
+		elseif $logpath <> "" then
+			_FileWriteLog($logpath, $text)
+		Endif
+	Endif
 EndFunc
