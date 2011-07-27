@@ -109,8 +109,8 @@ Global $bitmaps[48][6] = [ _
 
 ; Заголовок искомого окна браузера с игрой
 ;~ Global Const $browserTitle = "The Settlers Online - Beta"
-;Global Const $browserTitle = "Die Siedler Online"
-Global Const $browserTitle = "Online"
+Global Const $browserTitle = "Die Siedler Online"
+;Global Const $browserTitle = "Online"
 
 ; --- Browsers ------------------------------------------------------------------------------
 ; Параметры поиска клиента игры для всех доступных браузеров в формате

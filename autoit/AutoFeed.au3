@@ -145,7 +145,7 @@
 #Include <WinAPI.au3>
 #Include <Misc.au3>
 #Include <Date.au3>
-#Include <Encoding.au3>
+;~ #Include <Encoding.au3>
 
 ; for TextDisplay
 #include <GUIEdit.au3>

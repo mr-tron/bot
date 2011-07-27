@@ -308,7 +308,7 @@ EndFunc
 
 Func StartGame()
 	AutoItSetOption("WinTitleMatchMode", 2)
-	$clWnd = WinGetHandle("Online", "")
+	$clWnd = WinGetHandle($browserTitle, "")
 	if $clWnd = 0 then
 		Run($runpath) ; стартуем браузер
 	Else
@@ -318,7 +318,7 @@ Func StartGame()
 	;Ждем загрузки главной страницы
 	Local $wcnt = 0
 	while $clWnd = 0
-		$clWnd = WinGetHandle("Online", "")
+		$clWnd = WinGetHandle($browserTitle, "")
 		Sleep(1000)
 		$wcnt = $wcnt + 1
 		if $wcnt > 60*5 then 
