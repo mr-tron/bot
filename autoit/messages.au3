@@ -22,6 +22,8 @@ func AutoAccept($autoablehen = true)
 			Sleep(200)
 			ClickB0("Сообщение 1", 1, 0, $mi*25)
 			Sleep(500)
+			ClickB("Принять карту", false, false)
+			Sleep(200)
 			ClickB0("На склад")
 		elseif $mType = 'Сражение' Then
 			Sleep(200)
@@ -30,6 +32,8 @@ func AutoAccept($autoablehen = true)
 			Sleep(200)
 			ClickB0("Сообщение 1", 1, 0, $mi*25)
 			Sleep(500)
+			ClickB("Принять карту", false, false)
+			Sleep(200)
 			ClickB0("Принять предложение")
 ;~ 			Если у нас нет нужного количества ресурсов, то отклоняем предложение
 			if $autoablehen then
@@ -41,7 +45,14 @@ func AutoAccept($autoablehen = true)
 			Sleep(200)
 			ClickB0("Сообщение 1", 1, 0, $mi*25)
 			Sleep(500)
+			ClickB("Принять карту", false, false)
+			Sleep(200)
 			ClickB0("Принять подарок")
+		elseif $mType = 'Найдена карта' Then
+			Sleep(200)
+			ClickB0("Сообщение 1", 1, 0, $mi*25)
+			Sleep(500)
+			ClickB("Принять карту", false, false)
 		elseif $mType = 'Undefined' Then
 			$mi = $mi + 1
 		EndIf

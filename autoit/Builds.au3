@@ -367,6 +367,11 @@ Func StartGame()
 		; отводим мышку, чтобы гарантированно не загараживала битмапы
 		MouseMove($clientPos[0] + 10, $clientPos[1] + 10)
 	Wend
+	while not ClickB('ОкУровень', true, false) 
+		Sleep(2000)
+		; отводим мышку, чтобы гарантированно не загараживала битмапы
+		MouseMove($clientPos[0] + 10, $clientPos[1] + 10)
+	Wend
 	Sleep(4000)
 	Return True
 EndFunc
