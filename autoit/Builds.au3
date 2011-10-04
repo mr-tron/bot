@@ -40,13 +40,16 @@ EndFunc
 Func CreateProviant($resname = 'Уха', $qty = 10)
 	Sleep(200)
 	if ClickB("Провиант3") then; выбираем провиантлагерь
-		$bookmark = 2;
+		$bookmark = "2";
 		if ($resname = 'Корм для рыб') or ($resname = 'Корм для животных') Then
-			$bookmark = 3
+			$bookmark = "3"
 		elseif ($resname = 'Инструменты') or ($resname = 'Золото') or ($resname = 'Поселенцы') Then
-			$bookmark = 1
+			$bookmark = "1"
 		Endif
-		ClickB0("ЗакладкаП"&$bookmark)
+;~ 		AddLog($bookmark)
+;~ 		AddLog("ЗакладкаП"&$bookmark)
+		Sleep(400)
+		ClickB("ЗакладкаП"&$bookmark, false, false)
 		Sleep(200)
 		ClickB0($resname)
 		Sleep(200)
@@ -358,19 +361,31 @@ Func StartGame()
 		$wcnt = $wcnt + 1
 		if $wcnt > 60*5 then 
 ;~ 			Если не дождались загрузки, выходим
-			Return False
+			Return false
 		EndIf
 	WEnd
 	MouseMove($clientPos[0] + 30 ,$clientPos[1] + 30)
+	$wcnt = 0
 	while not ClickB('ОкСтарт', true, false) 
-		Sleep(2000)
+		Sleep(1000)
 		; отводим мышку, чтобы гарантированно не загараживала битмапы
 		MouseMove($clientPos[0] + 10, $clientPos[1] + 10)
+		$wcnt = $wcnt + 1
+		if $wcnt > 10 then 
+;~ 			Если не дождались загрузки, выходим
+			Return True
+		EndIf
 	Wend
+	$wcnt = 0
 	while not ClickB('ОкУровень', true, false) 
-		Sleep(2000)
+		Sleep(1000)
 		; отводим мышку, чтобы гарантированно не загараживала битмапы
 		MouseMove($clientPos[0] + 10, $clientPos[1] + 10)
+		$wcnt = $wcnt + 1
+		if $wcnt > 10 then 
+;~ 			Если не дождались загрузки, выходим
+			Return True
+		EndIf
 	Wend
 	Sleep(4000)
 	Return True

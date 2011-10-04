@@ -32,8 +32,6 @@ func AutoAccept($autoablehen = true)
 			Sleep(200)
 			ClickB0("Сообщение 1", 1, 0, $mi*25)
 			Sleep(500)
-			ClickB("Принять карту", false, false)
-			Sleep(200)
 			ClickB0("Принять предложение")
 ;~ 			Если у нас нет нужного количества ресурсов, то отклоняем предложение
 			if $autoablehen then
